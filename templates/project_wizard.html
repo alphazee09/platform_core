@@ -1,0 +1,1028 @@
+{% extends "base.html" %}
+
+{% block title %}Project Submission Wizard - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="wizard-container">
+    <div class="wizard-header">
+        <h1 class="wizard-title">Project Submission Wizard</h1>
+        <p class="wizard-subtitle">Let's bring your vision to life with precision and innovation</p>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="wizard-progress">
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Project Details</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Requirements</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Timeline & Budget</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Files & Assets</div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-label">Review & Submit</div>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 20%"></div>
+        </div>
+    </div>
+
+    <!-- Wizard Form -->
+    <form id="project-wizard-form" method="POST" action="{{ url_for('main.submit_project_wizard') }}" enctype="multipart/form-data">
+        <!-- Step 1: Project Details -->
+        <div class="wizard-step active" data-step="1">
+            <div class="step-content">
+                <div class="step-header">
+                    <h2>Project Overview</h2>
+                    <p>Tell us about your vision and what you want to achieve</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="project_title">Project Title *</label>
+                        <input type="text" id="project_title" name="project_title" required 
+                               placeholder="Enter a compelling project title...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project_type">Project Category *</label>
+                        <select id="project_type" name="project_type" required>
+                            <option value="">Select project type...</option>
+                            <option value="web_application">Web Application</option>
+                            <option value="mobile_app">Mobile Application</option>
+                            <option value="desktop_software">Desktop Software</option>
+                            <option value="api_integration">API Integration</option>
+                            <option value="database_design">Database Design</option>
+                            <option value="ai_ml_solution">AI/ML Solution</option>
+                            <option value="automation_script">Automation Script</option>
+                            <option value="custom_software">Custom Software</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="project_description">Project Description *</label>
+                        <textarea id="project_description" name="project_description" rows="5" required
+                                  placeholder="Describe your project in detail. What problem does it solve? What are your goals?"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="target_audience">Target Audience</label>
+                        <input type="text" id="target_audience" name="target_audience" 
+                               placeholder="Who will use this project?">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="industry">Industry/Domain</label>
+                        <select id="industry" name="industry">
+                            <option value="">Select industry...</option>
+                            <option value="technology">Technology</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="finance">Finance</option>
+                            <option value="education">Education</option>
+                            <option value="ecommerce">E-commerce</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="real_estate">Real Estate</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Requirements -->
+        <div class="wizard-step" data-step="2">
+            <div class="step-content">
+                <div class="step-header">
+                    <h2>Technical Requirements</h2>
+                    <p>Define the technical specifications and features you need</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="preferred_technologies">Preferred Technologies</label>
+                        <div class="tech-selector">
+                            <div class="tech-category">
+                                <h4>Frontend</h4>
+                                <div class="tech-options">
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="react">
+                                        <span>React</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="vue">
+                                        <span>Vue.js</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="angular">
+                                        <span>Angular</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="vanilla">
+                                        <span>Vanilla JS</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="tech-category">
+                                <h4>Backend</h4>
+                                <div class="tech-options">
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="python">
+                                        <span>Python</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="nodejs">
+                                        <span>Node.js</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="php">
+                                        <span>PHP</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="java">
+                                        <span>Java</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="tech-category">
+                                <h4>Database</h4>
+                                <div class="tech-options">
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="postgresql">
+                                        <span>PostgreSQL</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="mysql">
+                                        <span>MySQL</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="mongodb">
+                                        <span>MongoDB</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="redis">
+                                        <span>Redis</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="core_features">Core Features *</label>
+                        <div class="feature-builder">
+                            <div class="feature-list" id="feature-list">
+                                <!-- Features will be added dynamically -->
+                            </div>
+                            <div class="add-feature">
+                                <input type="text" id="new-feature" placeholder="Add a feature...">
+                                <button type="button" id="add-feature-btn">Add Feature</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="integrations">Required Integrations</label>
+                        <textarea id="integrations" name="integrations" rows="3"
+                                  placeholder="Payment gateways, APIs, third-party services..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="platforms">Target Platforms</label>
+                        <div class="platform-options">
+                            <label class="platform-option">
+                                <input type="checkbox" name="platforms" value="web">
+                                <span>Web Browser</span>
+                            </label>
+                            <label class="platform-option">
+                                <input type="checkbox" name="platforms" value="mobile">
+                                <span>Mobile</span>
+                            </label>
+                            <label class="platform-option">
+                                <input type="checkbox" name="platforms" value="desktop">
+                                <span>Desktop</span>
+                            </label>
+                            <label class="platform-option">
+                                <input type="checkbox" name="platforms" value="tablet">
+                                <span>Tablet</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Timeline & Budget -->
+        <div class="wizard-step" data-step="3">
+            <div class="step-content">
+                <div class="step-header">
+                    <h2>Project Timeline & Investment</h2>
+                    <p>Help us plan the optimal development schedule and budget</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="deadline">Preferred Deadline</label>
+                        <input type="date" id="deadline" name="deadline" min="{{ today }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="urgency">Project Urgency</label>
+                        <select id="urgency" name="urgency">
+                            <option value="low">Low - Flexible timeline</option>
+                            <option value="medium">Medium - Standard delivery</option>
+                            <option value="high">High - Fast track needed</option>
+                            <option value="critical">Critical - Rush delivery</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budget_range">Budget Range (USD)</label>
+                        <select id="budget_range" name="budget_range">
+                            <option value="">Select budget range...</option>
+                            <option value="under_5k">Under $5,000</option>
+                            <option value="5k_15k">$5,000 - $15,000</option>
+                            <option value="15k_50k">$15,000 - $50,000</option>
+                            <option value="50k_100k">$50,000 - $100,000</option>
+                            <option value="over_100k">Over $100,000</option>
+                            <option value="discuss">Let's discuss</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment_preference">Payment Preference</label>
+                        <select id="payment_preference" name="payment_preference">
+                            <option value="milestone">Milestone-based payments</option>
+                            <option value="hourly">Hourly rate</option>
+                            <option value="fixed">Fixed project price</option>
+                            <option value="retainer">Monthly retainer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="milestones">Project Milestones</label>
+                        <div class="milestone-builder">
+                            <div class="milestone-list" id="milestone-list">
+                                <!-- Milestones will be added dynamically -->
+                            </div>
+                            <div class="add-milestone">
+                                <input type="text" id="new-milestone" placeholder="Add a milestone...">
+                                <input type="number" id="milestone-percentage" placeholder="%" min="1" max="100">
+                                <button type="button" id="add-milestone-btn">Add Milestone</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="special_requirements">Special Requirements</label>
+                        <textarea id="special_requirements" name="special_requirements" rows="3"
+                                  placeholder="Any specific requirements, constraints, or preferences..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Files & Assets -->
+        <div class="wizard-step" data-step="4">
+            <div class="step-content">
+                <div class="step-header">
+                    <h2>Project Assets</h2>
+                    <p>Upload any relevant files, designs, or documentation</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Project Files</label>
+                        <div class="file-upload-area" id="file-upload-area">
+                            <div class="upload-zone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>Drag & Drop Files Here</h3>
+                                <p>or click to browse</p>
+                                <input type="file" id="project_files" name="project_files" multiple 
+                                       accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar">
+                            </div>
+                            <div class="file-types">
+                                <span>Supported: Documents, Images, Archives (Max 16MB each)</span>
+                            </div>
+                        </div>
+                        <div class="uploaded-files" id="uploaded-files-list"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="design_preferences">Design Style</label>
+                        <select id="design_preferences" name="design_preferences">
+                            <option value="">Select design style...</option>
+                            <option value="modern">Modern & Clean</option>
+                            <option value="futuristic">Futuristic & Tech</option>
+                            <option value="minimalist">Minimalist</option>
+                            <option value="corporate">Corporate & Professional</option>
+                            <option value="creative">Creative & Artistic</option>
+                            <option value="playful">Playful & Fun</option>
+                            <option value="elegant">Elegant & Sophisticated</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="color_scheme">Color Preferences</label>
+                        <input type="text" id="color_scheme" name="color_scheme" 
+                               placeholder="Preferred colors or existing brand colors...">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="inspiration_links">Inspiration & References</label>
+                        <textarea id="inspiration_links" name="inspiration_links" rows="3"
+                                  placeholder="Share links to websites, apps, or designs that inspire you..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Review & Submit -->
+        <div class="wizard-step" data-step="5">
+            <div class="step-content">
+                <div class="step-header">
+                    <h2>Review Your Submission</h2>
+                    <p>Please review all details before submitting your project</p>
+                </div>
+                
+                <div class="review-sections">
+                    <div class="review-section">
+                        <h3>Project Overview</h3>
+                        <div class="review-content" id="review-overview"></div>
+                    </div>
+                    
+                    <div class="review-section">
+                        <h3>Technical Requirements</h3>
+                        <div class="review-content" id="review-requirements"></div>
+                    </div>
+                    
+                    <div class="review-section">
+                        <h3>Timeline & Budget</h3>
+                        <div class="review-content" id="review-timeline"></div>
+                    </div>
+                    
+                    <div class="review-section">
+                        <h3>Files & Assets</h3>
+                        <div class="review-content" id="review-assets"></div>
+                    </div>
+                </div>
+                
+                <div class="submission-agreement">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="terms_agreement" required>
+                        <span class="checkmark"></span>
+                        I agree to the terms and conditions and confirm that all information provided is accurate
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="wizard-navigation">
+            <button type="button" id="prev-btn" class="btn btn-secondary" style="display: none;">
+                <i class="fas fa-arrow-left"></i> Previous
+            </button>
+            <button type="button" id="next-btn" class="btn btn-primary">
+                Next <i class="fas fa-arrow-right"></i>
+            </button>
+            <button type="submit" id="submit-btn" class="btn btn-success" style="display: none;">
+                <i class="fas fa-rocket"></i> Submit Project
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.wizard-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.wizard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.wizard-title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.wizard-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.wizard-progress {
+    margin-bottom: 3rem;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-number,
+.step.completed .step-number {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--dark-bg);
+}
+
+.step-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+}
+
+.step.active .step-label {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.wizard-step {
+    display: none;
+    animation: fadeInSlide 0.5s ease;
+}
+
+.wizard-step.active {
+    display: block;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.step-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.step-header h2 {
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.step-header p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.tech-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.tech-category h4 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.tech-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.tech-option,
+.platform-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tech-option:hover,
+.platform-option:hover {
+    background: rgba(0, 255, 255, 0.1);
+}
+
+.feature-builder,
+.milestone-builder {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.feature-list,
+.milestone-list {
+    min-height: 100px;
+    margin-bottom: 1rem;
+}
+
+.feature-item,
+.milestone-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+}
+
+.add-feature,
+.add-milestone {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.file-upload-area {
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+    border-color: var(--accent-color);
+    background: rgba(0, 255, 255, 0.05);
+}
+
+.upload-zone {
+    cursor: pointer;
+}
+
+.upload-zone i {
+    font-size: 3rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.upload-zone h3 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.upload-zone p {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.file-upload-area input[type="file"] {
+    display: none;
+}
+
+.file-types {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.platform-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.review-sections {
+    margin-bottom: 2rem;
+}
+
+.review-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.review-section h3 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.review-content {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+.submission-agreement {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.wizard-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .progress-steps {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .tech-selector {
+        grid-template-columns: 1fr;
+    }
+    
+    .platform-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeWizard();
+});
+
+function initializeWizard() {
+    let currentStep = 1;
+    const totalSteps = 5;
+    
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Navigation handlers
+    nextBtn.addEventListener('click', () => {
+        if (validateStep(currentStep)) {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateWizard();
+            }
+        }
+    });
+    
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateWizard();
+        }
+    });
+    
+    // Feature builder
+    const addFeatureBtn = document.getElementById('add-feature-btn');
+    const newFeatureInput = document.getElementById('new-feature');
+    const featureList = document.getElementById('feature-list');
+    
+    addFeatureBtn.addEventListener('click', () => {
+        const feature = newFeatureInput.value.trim();
+        if (feature) {
+            addFeature(feature);
+            newFeatureInput.value = '';
+        }
+    });
+    
+    newFeatureInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addFeatureBtn.click();
+        }
+    });
+    
+    // Milestone builder
+    const addMilestoneBtn = document.getElementById('add-milestone-btn');
+    const newMilestoneInput = document.getElementById('new-milestone');
+    const milestonePercentageInput = document.getElementById('milestone-percentage');
+    const milestoneList = document.getElementById('milestone-list');
+    
+    addMilestoneBtn.addEventListener('click', () => {
+        const milestone = newMilestoneInput.value.trim();
+        const percentage = milestonePercentageInput.value;
+        if (milestone && percentage) {
+            addMilestone(milestone, percentage);
+            newMilestoneInput.value = '';
+            milestonePercentageInput.value = '';
+        }
+    });
+    
+    // File upload
+    const fileUploadArea = document.getElementById('file-upload-area');
+    const fileInput = document.getElementById('project_files');
+    
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('dragover', handleDragOver);
+    fileUploadArea.addEventListener('drop', handleDrop);
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    function updateWizard() {
+        // Update progress
+        const progressFill = document.querySelector('.progress-fill');
+        const progressPercentage = (currentStep / totalSteps) * 100;
+        progressFill.style.width = progressPercentage + '%';
+        
+        // Update steps
+        document.querySelectorAll('.step').forEach((step, index) => {
+            step.classList.remove('active', 'completed');
+            if (index + 1 === currentStep) {
+                step.classList.add('active');
+            } else if (index + 1 < currentStep) {
+                step.classList.add('completed');
+            }
+        });
+        
+        // Update wizard steps
+        document.querySelectorAll('.wizard-step').forEach((step, index) => {
+            step.classList.remove('active');
+            if (index + 1 === currentStep) {
+                step.classList.add('active');
+            }
+        });
+        
+        // Update navigation buttons
+        prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+        nextBtn.style.display = currentStep < totalSteps ? 'block' : 'none';
+        submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
+        
+        // Update review on last step
+        if (currentStep === totalSteps) {
+            updateReview();
+        }
+    }
+    
+    function validateStep(step) {
+        const currentStepEl = document.querySelector(`[data-step="${step}"]`);
+        const requiredFields = currentStepEl.querySelectorAll('[required]');
+        
+        for (let field of requiredFields) {
+            if (!field.value.trim()) {
+                field.focus();
+                showNotification('Please fill in all required fields', 'warning');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    function addFeature(feature) {
+        const featureItem = document.createElement('div');
+        featureItem.className = 'feature-item';
+        featureItem.innerHTML = `
+            <span>${feature}</span>
+            <button type="button" onclick="this.parentElement.remove()">×</button>
+        `;
+        featureList.appendChild(featureItem);
+    }
+    
+    function addMilestone(milestone, percentage) {
+        const milestoneItem = document.createElement('div');
+        milestoneItem.className = 'milestone-item';
+        milestoneItem.innerHTML = `
+            <span>${milestone} (${percentage}%)</span>
+            <button type="button" onclick="this.parentElement.remove()">×</button>
+        `;
+        milestoneList.appendChild(milestoneItem);
+    }
+    
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.style.borderColor = 'var(--accent-color)';
+    }
+    
+    function handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    }
+    
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        handleFiles(files);
+    }
+    
+    function handleFiles(files) {
+        const filesList = document.getElementById('uploaded-files-list');
+        Array.from(files).forEach(file => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <span>${file.name} (${formatFileSize(file.size)})</span>
+                <button type="button" onclick="this.parentElement.remove()">×</button>
+            `;
+            filesList.appendChild(fileItem);
+        });
+    }
+    
+    function updateReview() {
+        // Populate review sections with form data
+        const formData = new FormData(document.getElementById('project-wizard-form'));
+        
+        // Overview
+        document.getElementById('review-overview').innerHTML = `
+            <p><strong>Title:</strong> ${formData.get('project_title') || 'Not specified'}</p>
+            <p><strong>Type:</strong> ${formData.get('project_type') || 'Not specified'}</p>
+            <p><strong>Description:</strong> ${formData.get('project_description') || 'Not specified'}</p>
+        `;
+        
+        // Requirements
+        const selectedTech = Array.from(document.querySelectorAll('input[name="technologies"]:checked'))
+            .map(input => input.value).join(', ');
+        document.getElementById('review-requirements').innerHTML = `
+            <p><strong>Technologies:</strong> ${selectedTech || 'Not specified'}</p>
+            <p><strong>Features:</strong> ${getFeaturesList()}</p>
+        `;
+        
+        // Timeline
+        document.getElementById('review-timeline').innerHTML = `
+            <p><strong>Deadline:</strong> ${formData.get('deadline') || 'Not specified'}</p>
+            <p><strong>Budget:</strong> ${formData.get('budget_range') || 'Not specified'}</p>
+            <p><strong>Payment:</strong> ${formData.get('payment_preference') || 'Not specified'}</p>
+        `;
+        
+        // Assets
+        document.getElementById('review-assets').innerHTML = `
+            <p><strong>Files:</strong> ${getUploadedFilesList()}</p>
+            <p><strong>Design Style:</strong> ${formData.get('design_preferences') || 'Not specified'}</p>
+        `;
+    }
+    
+    function getFeaturesList() {
+        const features = Array.from(document.querySelectorAll('.feature-item span'))
+            .map(span => span.textContent).join(', ');
+        return features || 'None added';
+    }
+    
+    function getUploadedFilesList() {
+        const files = Array.from(document.querySelectorAll('.file-item span'))
+            .map(span => span.textContent).join(', ');
+        return files || 'No files uploaded';
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        background: var(--accent-color);
+        color: var(--dark-bg);
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

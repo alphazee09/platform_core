@@ -74,6 +74,11 @@
                                 <span class="message-count-badge badge bg-danger" style="display: none;">0</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn-new-project" href="{{ url_for('main.project_wizard') }}">
+                                <i class="fas fa-rocket"></i> Start New Project
+                            </a>
+                        </li>
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.blog') }}">

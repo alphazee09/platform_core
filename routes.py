@@ -73,6 +73,104 @@ def projects():
     
     return render_template('projects.html', projects=all_projects)
 
+@main_bp.route('/project-wizard')
+@login_required
+def project_wizard():
+    from datetime import datetime
+    today = datetime.now().strftime('%Y-%m-%d')
+    return render_template('project_wizard.html', today=today)
+
+@main_bp.route('/project-wizard/submit', methods=['POST'])
+@login_required
+def submit_project_wizard():
+    try:
+        # Extract form data
+        title = request.form.get('project_title')
+        project_type = request.form.get('project_type')
+        description = request.form.get('project_description')
+        budget_range = request.form.get('budget_range')
+        deadline = request.form.get('deadline')
+        
+        # Convert budget range to estimated amount
+        budget_mapping = {
+            'under_5k': 2500,
+            '5k_15k': 10000,
+            '15k_50k': 32500,
+            '50k_100k': 75000,
+            'over_100k': 150000,
+            'discuss': None
+        }
+        
+        budget = budget_mapping.get(budget_range)
+        deadline_date = None
+        if deadline:
+            from datetime import datetime
+            deadline_date = datetime.strptime(deadline, '%Y-%m-%d')
+        
+        # Create new project
+        new_project = Project()
+        new_project.title = title
+        new_project.description = description
+        new_project.project_type = project_type
+        new_project.budget = budget
+        new_project.deadline = deadline_date
+        new_project.client_id = current_user.id
+        new_project.status = ProjectStatus.PENDING
+        
+        db.session.add(new_project)
+        db.session.commit()
+        
+        # Handle file uploads
+        files = request.files.getlist('project_files')
+        for file in files:
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                
+                # Create file record
+                project_file = ProjectFile()
+                project_file.filename = filename
+                project_file.original_filename = file.filename
+                project_file.file_path = file_path
+                project_file.file_size = os.path.getsize(file_path)
+                project_file.mime_type = file.content_type or 'application/octet-stream'
+                project_file.project_id = new_project.id
+                
+                db.session.add(project_file)
+        
+        # Extract and save additional data as JSON in description
+        additional_data = {
+            'target_audience': request.form.get('target_audience'),
+            'industry': request.form.get('industry'),
+            'technologies': request.form.getlist('technologies'),
+            'platforms': request.form.getlist('platforms'),
+            'integrations': request.form.get('integrations'),
+            'urgency': request.form.get('urgency'),
+            'payment_preference': request.form.get('payment_preference'),
+            'special_requirements': request.form.get('special_requirements'),
+            'design_preferences': request.form.get('design_preferences'),
+            'color_scheme': request.form.get('color_scheme'),
+            'inspiration_links': request.form.get('inspiration_links')
+        }
+        
+        # Append additional data to description
+        import json
+        new_project.description += f"\n\n--- Additional Details ---\n{json.dumps(additional_data, indent=2)}"
+        
+        db.session.commit()
+        
+        # Log activity
+        log_activity(current_user.id, 'PROJECT_SUBMITTED', f'New project submitted via wizard: {title}')
+        
+        flash('Project submitted successfully! We will review your requirements and get back to you soon.', 'success')
+        return redirect(url_for('main.projects'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash('Error submitting project. Please try again.', 'error')
+        return redirect(url_for('main.project_wizard'))
+
 @main_bp.route('/projects/create', methods=['GET', 'POST'])
 @login_required
 def create_project():
@@ -371,14 +469,16 @@ def internal_error(error):
 
 # API endpoints for real-time updates
 @main_bp.route('/api/unread-messages')
-@login_required
 def api_unread_messages():
+    if not current_user.is_authenticated:
+        return jsonify({'count': 0})
     count = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
     return jsonify({'count': count})
 
 @main_bp.route('/api/notifications')
-@login_required
 def api_notifications():
+    if not current_user.is_authenticated:
+        return jsonify({'count': 0})
     # Count unread messages as notifications for now
     count = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
     return jsonify({'count': count})
