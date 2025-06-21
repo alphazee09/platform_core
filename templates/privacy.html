@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+    <div class="legal-content">
+        <h1 class="legal-title">Privacy Policy</h1>
+        <p class="legal-subtitle">Last updated: {{ current_date }}</p>
+        
+        <div class="legal-section">
+            <h2>Information We Collect</h2>
+            <p>We collect information you provide directly to us, such as when you create an account, submit a project request, or communicate with us.</p>
+            
+            <h3>Personal Information</h3>
+            <ul>
+                <li>Name and contact information</li>
+                <li>Email address and phone number</li>
+                <li>Project requirements and specifications</li>
+                <li>Payment information (processed securely through Stripe)</li>
+                <li>Communication records and files you upload</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul>
+                <li>Provide, maintain, and improve our services</li>
+                <li>Process transactions and send related information</li>
+                <li>Send technical notices and support messages</li>
+                <li>Respond to your comments and questions</li>
+                <li>Develop new products and services</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Information Sharing</h2>
+            <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this policy:</p>
+            <ul>
+                <li>With your consent</li>
+                <li>To comply with legal obligations</li>
+                <li>To protect our rights and property</li>
+                <li>With service providers who assist in our operations</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Data Security</h2>
+            <p>We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access your personal information</li>
+                <li>Correct inaccurate information</li>
+                <li>Request deletion of your information</li>
+                <li>Object to processing of your information</li>
+                <li>Data portability</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, please contact us through our platform messaging system or email us directly.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.legal-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.legal-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3rem;
+}
+
+.legal-title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.legal-subtitle {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+}
+
+.legal-section {
+    margin-bottom: 3rem;
+}
+
+.legal-section h2 {
+    color: var(--primary-green);
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.legal-section h3 {
+    color: var(--primary-blue);
+    font-size: 1.3rem;
+    margin: 1.5rem 0 1rem 0;
+    font-weight: 500;
+}
+
+.legal-section p {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.legal-section ul {
+    color: rgba(255, 255, 255, 0.8);
+    padding-left: 2rem;
+}
+
+.legal-section li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .legal-container {
+        padding: 1rem;
+    }
+    
+    .legal-content {
+        padding: 2rem;
+    }
+    
+    .legal-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

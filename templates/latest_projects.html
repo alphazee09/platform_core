@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}Latest Projects - Portfolio{% endblock %}
+
+{% block content %}
+<div class="projects-showcase">
+    <div class="showcase-header">
+        <h1 class="showcase-title">Latest Projects</h1>
+        <p class="showcase-subtitle">Explore our recent software development achievements</p>
+    </div>
+
+    <div class="projects-grid">
+        {% for project in projects %}
+        <div class="project-card">
+            <div class="project-header">
+                <h3 class="project-title">{{ project.title }}</h3>
+                <span class="project-type">{{ project.project_type.replace('_', ' ').title() }}</span>
+            </div>
+            
+            <div class="project-description">
+                <p>{{ project.description[:200] }}{% if project.description|length > 200 %}...{% endif %}</p>
+            </div>
+            
+            <div class="project-tech">
+                <h4>Tech Stack</h4>
+                <div class="tech-tags">
+                    {% set tech_data = project.description.split('--- Additional Details ---')[1] if '--- Additional Details ---' in project.description else '{}' %}
+                    {% set additional_data = tech_data | from_json if tech_data != '{}' else {} %}
+                    {% if additional_data.technologies %}
+                        {% for tech in additional_data.technologies %}
+                        <span class="tech-tag">{{ tech }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="tech-tag">{{ project.project_type.replace('_', ' ').title() }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="project-features">
+                <h4>Key Features</h4>
+                <ul class="features-list">
+                    <li>Custom {{ project.project_type.replace('_', ' ') }} solution</li>
+                    <li>Scalable architecture design</li>
+                    <li>Modern user interface</li>
+                    <li>Secure data handling</li>
+                </ul>
+            </div>
+            
+            <div class="project-meta">
+                <div class="project-budget">
+                    {% if project.budget %}
+                    <span class="budget-label">Investment Range</span>
+                    <span class="budget-value">${{ "{:,.0f}".format(project.budget) }}+</span>
+                    {% endif %}
+                </div>
+                
+                <div class="project-timeline">
+                    <span class="timeline-label">Completed</span>
+                    <span class="timeline-value">{{ project.updated_at.strftime('%B %Y') }}</span>
+                </div>
+            </div>
+            
+            <div class="project-actions">
+                <button class="btn btn-primary" onclick="openProjectModal({{ project.id }})">
+                    <i class="fas fa-eye"></i> View Details
+                </button>
+                <a href="{{ url_for('main.project_wizard') }}" class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Start Similar Project
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not projects %}
+    <div class="no-projects">
+        <div class="no-projects-content">
+            <i class="fas fa-rocket"></i>
+            <h3>Coming Soon</h3>
+            <p>We're working on amazing projects that will be showcased here soon.</p>
+            <a href="{{ url_for('main.project_wizard') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Start Your Project
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Project Modal -->
+<div class="project-modal" id="project-modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Project Details</h2>
+            <button class="modal-close" onclick="closeProjectModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <!-- Project details will be loaded here -->
+        </div>
+        <div class="modal-footer">
+            <a href="{{ url_for('main.project_wizard') }}" class="btn btn-primary">
+                <i class="fas fa-rocket"></i> Start Your Project
+            </a>
+            <button class="btn btn-secondary" onclick="closeProjectModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.projects-showcase {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.showcase-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.showcase-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.showcase-subtitle {
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.project-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+    border-color: rgba(0, 255, 136, 0.3);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.project-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+}
+
+.project-type {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+    color: var(--dark-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.project-description {
+    margin-bottom: 1.5rem;
+}
+
+.project-description p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.project-tech,
+.project-features {
+    margin-bottom: 1.5rem;
+}
+
+.project-tech h4,
+.project-features h4 {
+    color: var(--primary-green);
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tech-tag {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    color: var(--primary-green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.features-list li {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.25rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.features-list li::before {
+    content: '▶';
+    color: var(--primary-green);
+    position: absolute;
+    left: 0;
+    font-size: 0.8rem;
+}
+
+.project-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.budget-label,
+.timeline-label {
+    display: block;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.budget-value,
+.timeline-value {
+    color: var(--primary-green);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.project-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.project-actions .btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+
+.no-projects {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.no-projects-content i {
+    font-size: 4rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+}
+
+.no-projects-content h3 {
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.no-projects-content p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Modal Styles */
+.project-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+    color: white;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: var(--primary-green);
+}
+
+.modal-body {
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+.modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .projects-showcase {
+        padding: 1rem;
+    }
+    
+    .showcase-title {
+        font-size: 2.5rem;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .project-card {
+        padding: 1.5rem;
+    }
+    
+    .project-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .project-meta {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-actions {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+function openProjectModal(projectId) {
+    // This would fetch project details via AJAX in a real implementation
+    document.getElementById('project-modal').style.display = 'flex';
+    document.getElementById('modal-title').textContent = 'Project Details';
+    document.getElementById('modal-body').innerHTML = `
+        <p>This feature would display detailed project information, screenshots, and case study details.</p>
+        <p>Contact us to learn more about this project and how we can create something similar for you.</p>
+    `;
+}
+
+function closeProjectModal() {
+    document.getElementById('project-modal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('project-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProjectModal();
+    }
+});
+</script>
+{% endblock %}

@@ -74,14 +74,12 @@ def projects():
     return render_template('projects.html', projects=all_projects)
 
 @main_bp.route('/project-wizard')
-@login_required
 def project_wizard():
     from datetime import datetime
     today = datetime.now().strftime('%Y-%m-%d')
     return render_template('project_wizard.html', today=today)
 
 @main_bp.route('/project-wizard/submit', methods=['POST'])
-@login_required
 def submit_project_wizard():
     try:
         # Extract form data
@@ -90,6 +88,31 @@ def submit_project_wizard():
         description = request.form.get('project_description')
         budget_range = request.form.get('budget_range')
         deadline = request.form.get('deadline')
+        client_email = request.form.get('client_email')
+        client_name = request.form.get('client_name')
+        
+        # Check if user exists or create new one
+        user = User.query.filter_by(email=client_email).first()
+        if not user:
+            # Generate random password
+            import secrets
+            import string
+            password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            
+            # Create new user
+            user = User()
+            user.username = client_email.split('@')[0]
+            user.email = client_email
+            user.first_name = client_name.split(' ')[0] if client_name else ''
+            user.last_name = ' '.join(client_name.split(' ')[1:]) if client_name and len(client_name.split(' ')) > 1 else ''
+            user.set_password(password)
+            user.role = UserRole.CLIENT
+            
+            db.session.add(user)
+            db.session.flush()  # Get user ID
+            
+            # Send welcome email with password (placeholder for now)
+            log_activity(user.id, 'ACCOUNT_CREATED', f'Account auto-created via project wizard for {client_email}')
         
         # Convert budget range to estimated amount
         budget_mapping = {
@@ -114,7 +137,7 @@ def submit_project_wizard():
         new_project.project_type = project_type
         new_project.budget = budget
         new_project.deadline = deadline_date
-        new_project.client_id = current_user.id
+        new_project.client_id = user.id
         new_project.status = ProjectStatus.PENDING
         
         db.session.add(new_project)
@@ -161,15 +184,18 @@ def submit_project_wizard():
         db.session.commit()
         
         # Log activity
-        log_activity(current_user.id, 'PROJECT_SUBMITTED', f'New project submitted via wizard: {title}')
+        log_activity(user.id, 'PROJECT_SUBMITTED', f'New project submitted via wizard: {title}')
         
-        flash('Project submitted successfully! We will review your requirements and get back to you soon.', 'success')
-        return redirect(url_for('main.projects'))
+        return jsonify({
+            'success': True, 
+            'message': 'Project submitted successfully!',
+            'project_id': new_project.id,
+            'user_created': user.username if not User.query.filter_by(email=client_email).first() else None
+        })
         
     except Exception as e:
         db.session.rollback()
-        flash('Error submitting project. Please try again.', 'error')
-        return redirect(url_for('main.project_wizard'))
+        return jsonify({'success': False, 'message': 'Error submitting project. Please try again.'})
 
 @main_bp.route('/projects/create', methods=['GET', 'POST'])
 @login_required
@@ -482,5 +508,23 @@ def api_notifications():
     # Count unread messages as notifications for now
     count = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
     return jsonify({'count': count})
+
+@main_bp.route('/privacy')
+def privacy_policy():
+    from datetime import datetime
+    current_date = datetime.now().strftime('%B %d, %Y')
+    return render_template('privacy.html', current_date=current_date)
+
+@main_bp.route('/terms')
+def terms_of_service():
+    from datetime import datetime
+    current_date = datetime.now().strftime('%B %d, %Y')
+    return render_template('terms.html', current_date=current_date)
+
+@main_bp.route('/latest-projects')
+def latest_projects():
+    # Show latest 6 completed projects (public view)
+    featured_projects = Project.query.filter_by(status=ProjectStatus.COMPLETED).order_by(Project.updated_at.desc()).limit(6).all()
+    return render_template('latest_projects.html', projects=featured_projects)
 
 # Blueprint registration moved to main.py to avoid circular imports

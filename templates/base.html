@@ -29,8 +29,7 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Mazin Yahia" height="40">
-                Mazin Yahia
+                <img src="/attached_assets/logo_1750546640030.png" alt="Logo" height="40">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -88,6 +87,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.github_repos') }}">
                             <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.latest_projects') }}">
+                            <i class="fas fa-star"></i> Latest Projects
                         </a>
                     </li>
                 </ul>

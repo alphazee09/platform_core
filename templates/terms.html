@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+    <div class="legal-content">
+        <h1 class="legal-title">Terms of Service</h1>
+        <p class="legal-subtitle">Last updated: {{ current_date }}</p>
+        
+        <div class="legal-section">
+            <h2>Agreement to Terms</h2>
+            <p>By accessing and using our software development platform, you agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Services Provided</h2>
+            <p>We provide custom software development services including:</p>
+            <ul>
+                <li>Web application development</li>
+                <li>Mobile application development</li>
+                <li>API development and integration</li>
+                <li>Database design and optimization</li>
+                <li>AI/ML solutions</li>
+                <li>Technical consulting</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Project Workflow</h2>
+            <h3>Project Submission</h3>
+            <p>Clients can submit project requirements through our wizard interface. All submissions are reviewed within 48 hours.</p>
+            
+            <h3>Contract Creation</h3>
+            <p>Upon project approval, a detailed contract will be created outlining scope, timeline, and payment terms.</p>
+            
+            <h3>Development Process</h3>
+            <p>Projects follow milestone-based development with regular updates and client feedback integration.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Payment Terms</h2>
+            <ul>
+                <li>Payments are processed securely through Stripe</li>
+                <li>Milestone-based payments are due upon completion verification</li>
+                <li>Late payments may incur additional fees</li>
+                <li>Refunds are handled case-by-case basis</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Intellectual Property</h2>
+            <p>Upon full payment, clients retain ownership of custom-developed code. Pre-existing tools, frameworks, and methodologies remain our property.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Warranties and Limitations</h2>
+            <p>We provide a 90-day warranty on delivered software for bug fixes. We are not liable for indirect or consequential damages.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Account Termination</h2>
+            <p>Either party may terminate services with 30 days written notice. Active projects will be completed according to existing contracts.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>Contact Information</h2>
+            <p>For questions regarding these terms, contact us through our platform messaging system.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.legal-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.legal-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3rem;
+}
+
+.legal-title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.legal-subtitle {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+}
+
+.legal-section {
+    margin-bottom: 3rem;
+}
+
+.legal-section h2 {
+    color: var(--primary-green);
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.legal-section h3 {
+    color: var(--primary-blue);
+    font-size: 1.3rem;
+    margin: 1.5rem 0 1rem 0;
+    font-weight: 500;
+}
+
+.legal-section p {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.legal-section ul {
+    color: rgba(255, 255, 255, 0.8);
+    padding-left: 2rem;
+}
+
+.legal-section li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .legal-container {
+        padding: 1rem;
+    }
+    
+    .legal-content {
+        padding: 2rem;
+    }
+    
+    .legal-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
