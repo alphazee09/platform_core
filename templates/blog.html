@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Blog - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Blog Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="glass-card text-center animate-on-scroll">
+                <h1 class="text-gradient mb-3">
+                    <i class="fas fa-blog"></i> Tech Blog
+                </h1>
+                <p class="text-secondary lead">
+                    Insights, tutorials, and thoughts on the future of software engineering
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories and Search -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('main.blog') }}" 
+                   class="btn btn-outline-futuristic btn-sm {% if not current_category %}active{% endif %}">
+                    All Posts
+                </a>
+                {% for category in categories %}
+                <a href="{{ url_for('main.blog', category=category) }}" 
+                   class="btn btn-outline-futuristic btn-sm {% if current_category == category %}active{% endif %}">
+                    {{ category.replace('_', ' ').title() }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary">
+                    <i class="fas fa-search text-primary"></i>
+                </span>
+                <input type="text" class="form-control form-control-futuristic" 
+                       placeholder="Search posts..." onkeyup="searchPosts(this.value)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Posts -->
+    {% if posts.items %}
+        <div class="row" id="posts-container">
+            {% for post in posts.items %}
+            <div class="col-lg-4 col-md-6 mb-4 post-card animate-child" 
+                 data-title="{{ post.title.lower() }}"
+                 data-category="{{ post.category.lower() }}"
+                 data-tags="{{ post.tags.lower() if post.tags else '' }}">
+                <div class="glass-card h-100 blog-post-card">
+                    {% if post.featured_image %}
+                        <div class="post-image-container">
+                            <img src="{{ url_for('main.uploaded_file', filename=post.featured_image) }}" 
+                                 class="post-featured-image" alt="{{ post.title }}">
+                            <div class="post-overlay">
+                                <div class="post-stats">
+                                    <span class="stat-item">
+                                        <i class="fas fa-eye"></i> {{ post.views }}
+                                    </span>
+                                    <span class="stat-item">
+                                        <i class="fas fa-heart"></i> {{ post.likes }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="post-placeholder">
+                            <i class="fas fa-newspaper fa-3x text-primary"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="post-content">
+                        <div class="post-meta mb-2">
+                            <span class="badge bg-primary">{{ post.category.replace('_', ' ').title() }}</span>
+                            <small class="text-muted ms-2">{{ post.published_at.strftime('%B %d, %Y') }}</small>
+                        </div>
+                        
+                        <h5 class="post-title text-gradient mb-3">
+                            <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="text-decoration-none">
+                                {{ post.title }}
+                            </a>
+                        </h5>
+                        
+                        <p class="post-excerpt text-secondary mb-3">
+                            {{ post.excerpt or (post.content[:120] + '...' if post.content|length > 120 else post.content) }}
+                        </p>
+                        
+                        {% if post.tags %}
+                        <div class="post-tags mb-3">
+                            {% for tag in post.tags.split(',')[:3] %}
+                            <span class="tag-badge"># {{ tag.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="post-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="post-stats-small">
+                                    <small class="text-muted">
+                                        <i class="fas fa-eye"></i> {{ post.views }}
+                                        <i class="fas fa-heart ms-2"></i> {{ post.likes }}
+                                        <i class="fas fa-comments ms-2"></i> {{ post.comments|length }}
+                                    </small>
+                                </div>
+                                <a href="{{ url_for('main.blog_post', post_id=post.id) }}" 
+                                   class="btn btn-outline-futuristic btn-sm">
+                                    Read More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if posts.pages > 1 %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <nav aria-label="Blog pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link glass-card" 
+                               href="{{ url_for('main.blog', page=posts.prev_num, category=current_category) }}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for page_num in posts.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != posts.page %}
+                                <li class="page-item">
+                                    <a class="page-link glass-card" 
+                                       href="{{ url_for('main.blog', page=page_num, category=current_category) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link glass-card">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link glass-card">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link glass-card" 
+                               href="{{ url_for('main.blog', page=posts.next_num, category=current_category) }}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="glass-card text-center py-5 animate-on-scroll">
+                    <i class="fas fa-blog fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">No blog posts found</h3>
+                    <p class="text-secondary lead">
+                        {% if current_category %}
+                            No posts in the "{{ current_category.replace('_', ' ').title() }}" category yet.
+                        {% else %}
+                            Check back soon for insights and tutorials on software engineering.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('main.blog') }}" class="btn btn-futuristic">
+                        <i class="fas fa-arrow-left"></i> View All Posts
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.blog-post-card {
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.blog-post-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.post-image-container {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.post-featured-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.blog-post-card:hover .post-featured-image {
+    transform: scale(1.05);
+}
+
+.post-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.3), rgba(0, 255, 136, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+}
+
+.blog-post-card:hover .post-overlay {
+    opacity: 1;
+}
+
+.post-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat-item {
+    color: white;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.post-placeholder {
+    height: 200px;
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 153, 255, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.post-content {
+    padding: 1.5rem;
+}
+
+.post-title a {
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+.post-title a:hover {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.post-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tag-badge {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--primary-green);
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.post-card {
+    transition: all 0.3s ease;
+}
+
+.post-card.hidden {
+    display: none;
+}
+
+.btn-outline-futuristic.active {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+    color: white;
+    border-color: transparent;
+}
+
+.page-link.glass-card {
+    background: var(--glass-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+}
+
+.page-link.glass-card:hover {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: var(--primary-green);
+    color: var(--text-primary);
+}
+
+.page-item.active .page-link.glass-card {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+    border-color: transparent;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function searchPosts(query) {
+    const posts = document.querySelectorAll('.post-card');
+    const searchTerm = query.toLowerCase();
+    
+    posts.forEach(post => {
+        const title = post.dataset.title;
+        const category = post.dataset.category;
+        const tags = post.dataset.tags;
+        
+        if (title.includes(searchTerm) || category.includes(searchTerm) || tags.includes(searchTerm)) {
+            post.classList.remove('hidden');
+        } else {
+            post.classList.add('hidden');
+        }
+    });
+}
+
+// Like post functionality
+function likePost(postId) {
+    fetch(`/api/like-post/${postId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.likes !== undefined) {
+            // Update like count in UI
+            const likeElements = document.querySelectorAll(`[data-post-id="${postId}"] .like-count`);
+            likeElements.forEach(element => {
+                element.textContent = data.likes;
+            });
+            showNotification('Post liked!', 'success');
+        }
+    })
+    .catch(error => {
+        console.error('Error liking post:', error);
+        showNotification('Failed to like post', 'error');
+    });
+}
+
+// Share post functionality
+function sharePost(postId, title) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            url: window.location.origin + `/blog/${postId}`
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        const url = window.location.origin + `/blog/${postId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            showNotification('Post URL copied to clipboard!', 'success');
+        }).catch(() => {
+            showNotification('Failed to copy URL', 'error');
+        });
+    }
+}
+
+// Smooth scroll to posts when coming from pagination
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#posts') {
+        document.getElementById('posts-container').scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+});
+</script>
+{% endblock %}

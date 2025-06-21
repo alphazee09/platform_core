@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center py-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="form-futuristic animate-on-scroll">
+                <div class="text-center mb-4">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" 
+                         alt="Mazin Yahia" height="60" class="mb-3">
+                    <h2 class="text-gradient">Join the Future</h2>
+                    <p class="text-secondary">Create your account and start your journey</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('auth.register') }}" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label-futuristic">First Name</label>
+                            <input type="text" class="form-control form-control-futuristic" 
+                                   id="first_name" name="first_name" 
+                                   placeholder="Your first name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label-futuristic">Last Name</label>
+                            <input type="text" class="form-control form-control-futuristic" 
+                                   id="last_name" name="last_name" 
+                                   placeholder="Your last name">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label-futuristic">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary">
+                                <i class="fas fa-user text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-futuristic" 
+                                   id="username" name="username" required 
+                                   placeholder="Choose a unique username">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label-futuristic">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary">
+                                <i class="fas fa-envelope text-primary"></i>
+                            </span>
+                            <input type="email" class="form-control form-control-futuristic" 
+                                   id="email" name="email" required 
+                                   placeholder="your.email@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone" class="form-label-futuristic">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary">
+                                <i class="fas fa-phone text-primary"></i>
+                            </span>
+                            <input type="tel" class="form-control form-control-futuristic" 
+                                   id="phone" name="phone" 
+                                   placeholder="+1 (555) 123-4567">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label-futuristic">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary">
+                                    <i class="fas fa-lock text-primary"></i>
+                                </span>
+                                <input type="password" class="form-control form-control-futuristic" 
+                                       id="password" name="password" required 
+                                       placeholder="Create strong password">
+                                <button class="btn btn-outline-secondary" type="button" 
+                                        onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="toggleIcon1"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label-futuristic">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-secondary">
+                                    <i class="fas fa-lock text-primary"></i>
+                                </span>
+                                <input type="password" class="form-control form-control-futuristic" 
+                                       id="confirm_password" name="confirm_password" required 
+                                       placeholder="Confirm your password">
+                                <button class="btn btn-outline-secondary" type="button" 
+                                        onclick="togglePassword('confirm_password')">
+                                    <i class="fas fa-eye" id="toggleIcon2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Identity Verification Section -->
+                    <div class="glass-card mt-4 mb-4">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-shield-alt"></i> Identity Verification (Optional)
+                        </h5>
+                        <p class="text-secondary small mb-3">
+                            Upload your documents for enhanced security and verification status.
+                        </p>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_card" class="form-label-futuristic">ID Card/Document</label>
+                                <input type="file" class="form-control form-control-futuristic" 
+                                       id="id_card" name="id_card" 
+                                       accept=".jpg,.jpeg,.png,.pdf">
+                                <small class="text-muted">JPG, PNG, or PDF (Max 5MB)</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="signature" class="form-label-futuristic">Digital Signature</label>
+                                <input type="file" class="form-control form-control-futuristic" 
+                                       id="signature" name="signature" 
+                                       accept=".jpg,.jpeg,.png">
+                                <small class="text-muted">JPG or PNG (Max 2MB)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label text-secondary" for="terms">
+                                I agree to the 
+                                <a href="#" class="text-decoration-none text-gradient">Terms of Service</a> 
+                                and 
+                                <a href="#" class="text-decoration-none text-gradient">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-futuristic w-100 mb-3">
+                        <i class="fas fa-rocket"></i> Create Account
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="text-secondary">
+                        Already have an account? 
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none text-gradient">
+                            Sign In
+                        </a>
+                    </p>
+                </div>
+                
+                <!-- Security Features -->
+                <div class="mt-4 pt-3 border-top border-secondary">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <i class="fas fa-user-shield text-success mb-2"></i>
+                            <small class="d-block text-muted">Verified</small>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-lock text-warning mb-2"></i>
+                            <small class="d-block text-muted">Secure</small>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-certificate text-info mb-2"></i>
+                            <small class="d-block text-muted">Certified</small>
+                        </div>
+                        <div class="col-3">
+                            <i class="fas fa-rocket text-primary mb-2"></i>
+                            <small class="d-block text-muted">Future-Ready</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.input-group-text {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const iconId = inputId === 'password' ? 'toggleIcon1' : 'toggleIcon2';
+    const icon = document.getElementById(iconId);
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+// Password strength indicator
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const strength = calculatePasswordStrength(password);
+    updatePasswordStrength(strength);
+});
+
+function calculatePasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
+}
+
+function updatePasswordStrength(strength) {
+    const colors = ['#ff4757', '#ff6b47', '#ffa502', '#2ed573', '#00ff88'];
+    const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+    
+    let indicator = document.getElementById('password-strength');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'password-strength';
+        indicator.className = 'mt-2';
+        document.getElementById('password').parentNode.parentNode.appendChild(indicator);
+    }
+    
+    indicator.innerHTML = `
+        <div class="progress progress-futuristic" style="height: 4px;">
+            <div class="progress-bar-futuristic" style="width: ${strength * 20}%; background: ${colors[strength] || '#ff4757'};"></div>
+        </div>
+        <small class="text-muted">${labels[strength] || 'Enter password'}</small>
+    `;
+}
+</script>
+{% endblock %}

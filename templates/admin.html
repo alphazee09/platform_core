@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Admin Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="text-gradient mb-2">
+                            <i class="fas fa-shield-alt"></i> Admin Control Center
+                        </h1>
+                        <p class="text-secondary lead mb-0">
+                            Monitor and manage the entire platform from this futuristic command center.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button class="btn btn-futuristic" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-outline-futuristic" onclick="exportData()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card glow-green">
+                <div class="stat-number">{{ stats.total_users }}</div>
+                <div class="stat-label">Total Users</div>
+                <div class="mt-2">
+                    <i class="fas fa-users fa-2x text-success"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card glow-blue">
+                <div class="stat-number">{{ stats.total_projects }}</div>
+                <div class="stat-label">Total Projects</div>
+                <div class="mt-2">
+                    <i class="fas fa-project-diagram fa-2x text-info"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card glow-purple">
+                <div class="stat-number">{{ stats.active_contracts }}</div>
+                <div class="stat-label">Active Contracts</div>
+                <div class="mt-2">
+                    <i class="fas fa-file-contract fa-2x text-primary"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.pending_payments }}</div>
+                <div class="stat-label">Pending Payments</div>
+                <div class="mt-2">
+                    <i class="fas fa-credit-card fa-2x text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Management -->
+        <div class="col-lg-8 mb-4">
+            <div class="glass-card animate-on-scroll">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-gradient mb-0">
+                        <i class="fas fa-user-cog"></i> User Management
+                    </h3>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-futuristic btn-sm" onclick="showAllUsers()">
+                            All Users
+                        </button>
+                        <button class="btn btn-outline-futuristic btn-sm" onclick="showUnverifiedUsers()">
+                            Unverified ({{ unverified_users|length }})
+                        </button>
+                    </div>
+                </div>
+                
+                {% if unverified_users %}
+                    <div id="unverified-users">
+                        <h5 class="text-warning mb-3">
+                            <i class="fas fa-exclamation-triangle"></i> Users Pending Verification
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-futuristic">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Registration Date</th>
+                                        <th>Documents</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in unverified_users %}
+                                    <tr id="user-{{ user.id }}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if user.profile_image %}
+                                                    <img src="{{ url_for('main.uploaded_file', filename=user.profile_image) }}" 
+                                                         class="rounded-circle me-2" width="32" height="32">
+                                                {% else %}
+                                                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                                         style="width: 32px; height: 32px;">
+                                                        <i class="fas fa-user text-white"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ user.get_full_name() }}</strong>
+                                                    <small class="d-block text-muted">@{{ user.username }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.created_at.strftime('%m/%d/%Y') }}</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                {% if user.id_card_path %}
+                                                    <span class="badge bg-success">ID</span>
+                                                {% endif %}
+                                                {% if user.signature_path %}
+                                                    <span class="badge bg-info">Signature</span>
+                                                {% endif %}
+                                                {% if not user.id_card_path and not user.signature_path %}
+                                                    <span class="badge bg-secondary">None</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-success btn-sm" 
+                                                        onclick="verifyUser({{ user.id }})">
+                                                    <i class="fas fa-check"></i> Verify
+                                                </button>
+                                                <button class="btn btn-info btn-sm" 
+                                                        onclick="viewUserDetails({{ user.id }})">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-check fa-3x text-success mb-3"></i>
+                        <h5 class="text-success">All users are verified!</h5>
+                        <p class="text-secondary">No pending verifications at this time.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions & System Info -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="glass-card mb-4 animate-on-scroll">
+                <h5 class="text-gradient mb-3">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-futuristic" onclick="createAnnouncement()">
+                        <i class="fas fa-bullhorn"></i> Create Announcement
+                    </button>
+                    <button class="btn btn-outline-futuristic" onclick="managePayments()">
+                        <i class="fas fa-dollar-sign"></i> Manage Payments
+                    </button>
+                    <button class="btn btn-outline-futuristic" onclick="systemBackup()">
+                        <i class="fas fa-database"></i> System Backup
+                    </button>
+                    <button class="btn btn-outline-futuristic" onclick="viewLogs()">
+                        <i class="fas fa-file-alt"></i> System Logs
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="glass-card animate-on-scroll">
+                <h5 class="text-gradient mb-3">
+                    <i class="fas fa-heartbeat"></i> System Health
+                </h5>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>CPU Usage</small>
+                        <small>23%</small>
+                    </div>
+                    <div class="progress progress-futuristic">
+                        <div class="progress-bar-futuristic" style="width: 23%;"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Memory Usage</small>
+                        <small>67%</small>
+                    </div>
+                    <div class="progress progress-futuristic">
+                        <div class="progress-bar-futuristic" style="width: 67%;"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Storage</small>
+                        <small>45%</small>
+                    </div>
+                    <div class="progress progress-futuristic">
+                        <div class="progress-bar-futuristic" style="width: 45%;"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <span class="status-badge status-active">
+                        <i class="fas fa-check-circle"></i> All Systems Operational
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card animate-on-scroll">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-gradient mb-0">
+                        <i class="fas fa-history"></i> Recent Activity
+                    </h3>
+                    <button class="btn btn-outline-futuristic btn-sm" onclick="refreshActivity()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                
+                {% if activities %}
+                    <div class="table-responsive">
+                        <table class="table table-futuristic">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Description</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ activity.created_at.strftime('%m/%d %H:%M') }}</td>
+                                    <td>
+                                        {% if activity.user_id %}
+                                            <span class="text-primary">User #{{ activity.user_id }}</span>
+                                        {% else %}
+                                            <span class="text-muted">System</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ activity.action }}</span>
+                                    </td>
+                                    <td>{{ activity.description }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ activity.ip_address or 'N/A' }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No recent activity</h5>
+                        <p class="text-secondary">System activity will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.status-active {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function verifyUser(userId) {
+    if (!confirm('Are you sure you want to verify this user?')) return;
+    
+    fetch(`/api/verify-user/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('User verified successfully!', 'success');
+            document.getElementById(`user-${userId}`).remove();
+        } else {
+            showNotification('Failed to verify user', 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Network error occurred', 'error');
+        console.error('Error:', error);
+    });
+}
+
+function refreshDashboard() {
+    showNotification('Refreshing dashboard...', 'info');
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+
+function exportData() {
+    showNotification('Preparing data export...', 'info');
+    // Implementation for data export
+}
+
+function createAnnouncement() {
+    showNotification('Opening announcement editor...', 'info');
+    // Implementation for announcement creation
+}
+
+function managePayments() {
+    window.location.href = '/payments';
+}
+
+function systemBackup() {
+    if (confirm('Start system backup? This may take several minutes.')) {
+        showNotification('Starting system backup...', 'info');
+        // Implementation for system backup
+    }
+}
+
+function viewLogs() {
+    showNotification('Opening system logs...', 'info');
+    // Implementation for log viewing
+}
+
+function showAllUsers() {
+    showNotification('Loading all users...', 'info');
+    // Implementation to show all users
+}
+
+function showUnverifiedUsers() {
+    showNotification('Filtering unverified users...', 'info');
+    // Already showing unverified users
+}
+
+function viewUserDetails(userId) {
+    showNotification('Loading user details...', 'info');
+    // Implementation for user details modal
+}
+
+function refreshActivity() {
+    showNotification('Refreshing activity log...', 'info');
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+</script>
+{% endblock %}

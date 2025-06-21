@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Projects Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="text-gradient mb-2">
+                            <i class="fas fa-project-diagram"></i> Project Management
+                        </h1>
+                        <p class="text-secondary lead mb-0">
+                            Monitor and manage all your projects from this centralized command center.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="d-flex gap-2 justify-content-end flex-wrap">
+                            <a href="{{ url_for('main.create_project') }}" class="btn btn-futuristic">
+                                <i class="fas fa-plus"></i> New Project
+                            </a>
+                            <button class="btn btn-outline-futuristic" onclick="exportProjects()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-futuristic btn-sm active" onclick="filterProjects('all')">
+                                All Projects
+                            </button>
+                            <button class="btn btn-outline-futuristic btn-sm" onclick="filterProjects('pending')">
+                                Pending
+                            </button>
+                            <button class="btn btn-outline-futuristic btn-sm" onclick="filterProjects('in_progress')">
+                                In Progress
+                            </button>
+                            <button class="btn btn-outline-futuristic btn-sm" onclick="filterProjects('completed')">
+                                Completed
+                            </button>
+                            <button class="btn btn-outline-futuristic btn-sm" onclick="filterProjects('cancelled')">
+                                Cancelled
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary">
+                                <i class="fas fa-search text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-futuristic" 
+                                   placeholder="Search projects..." onkeyup="searchProjects(this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Grid/List -->
+    {% if projects %}
+        <div class="row" id="projects-container">
+            {% for project in projects %}
+            <div class="col-lg-6 col-xl-4 mb-4 project-card animate-child" 
+                 data-status="{{ project.status.value }}" 
+                 data-title="{{ project.title.lower() }}"
+                 data-type="{{ project.project_type.lower() }}">
+                <div class="glass-card h-100">
+                    <!-- Project Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="flex-grow-1">
+                            <h5 class="text-gradient mb-1">{{ project.title }}</h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge bg-secondary">{{ project.project_type }}</span>
+                                <span class="status-badge status-{{ project.status.value }}">
+                                    {{ project.status.value.replace('_', ' ').title() }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu glass-card">
+                                <li><a class="dropdown-item" href="#" onclick="viewProject({{ project.id }})">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="editProject({{ project.id }})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a></li>
+                                {% if current_user.role.value == 'admin' %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="updateProjectStatus({{ project.id }})">
+                                    <i class="fas fa-sync-alt"></i> Update Status
+                                </a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Project Description -->
+                    <p class="text-secondary mb-3">{{ project.description[:120] }}{% if project.description|length > 120 %}...{% endif %}</p>
+
+                    <!-- Project Progress -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Progress</small>
+                            <small class="text-primary">{{ project.progress }}%</small>
+                        </div>
+                        <div class="progress progress-futuristic">
+                            <div class="progress-bar-futuristic" style="width: {{ project.progress }}%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Project Details -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Budget</small>
+                            <strong class="text-success">
+                                {% if project.budget %}
+                                    ${{ "%.2f"|format(project.budget) }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Deadline</small>
+                            <strong class="{% if project.deadline and project.deadline < moment().utcnow() %}text-danger{% else %}text-info{% endif %}">
+                                {% if project.deadline %}
+                                    {{ project.deadline.strftime('%m/%d/%Y') }}
+                                {% else %}
+                                    No deadline
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <!-- Project Files -->
+                    {% if project.files %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Files ({{ project.files|length }})</small>
+                        <div class="d-flex gap-1 flex-wrap">
+                            {% for file in project.files[:3] %}
+                            <span class="badge bg-info">
+                                <i class="fas fa-file"></i> {{ file.original_filename[:15] }}{% if file.original_filename|length > 15 %}...{% endif %}
+                            </span>
+                            {% endfor %}
+                            {% if project.files|length > 3 %}
+                            <span class="badge bg-secondary">+{{ project.files|length - 3 }} more</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Project Milestones -->
+                    {% if project.milestones %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Milestones</small>
+                        <div class="progress progress-futuristic mb-1" style="height: 6px;">
+                            {% set completed_milestones = project.milestones|selectattr('is_completed')|list %}
+                            <div class="progress-bar-futuristic" 
+                                 style="width: {{ (completed_milestones|length / project.milestones|length * 100)|round }}%;"></div>
+                        </div>
+                        <small class="text-muted">{{ completed_milestones|length }} of {{ project.milestones|length }} completed</small>
+                    </div>
+                    {% endif %}
+
+                    <!-- Project Actions -->
+                    <div class="d-flex gap-2 mt-auto">
+                        <button class="btn btn-outline-futuristic btn-sm flex-fill" 
+                                onclick="viewProject({{ project.id }})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        {% if current_user.role.value == 'admin' %}
+                        <button class="btn btn-outline-futuristic btn-sm" 
+                                onclick="updateProjectStatus({{ project.id }})">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Project Meta -->
+                    <div class="border-top border-secondary pt-2 mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user"></i> {{ project.client.get_full_name() }}
+                            </small>
+                            <small class="text-muted">
+                                {{ project.updated_at.strftime('%m/%d/%Y') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Projects pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link glass-card" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link glass-card" href="#">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link glass-card" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link glass-card" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link glass-card" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="glass-card text-center py-5 animate-on-scroll">
+                    <i class="fas fa-project-diagram fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">No projects found</h3>
+                    <p class="text-secondary lead mb-4">
+                        Start your journey by creating your first project. 
+                        Transform your ideas into reality with our futuristic platform.
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="{{ url_for('main.create_project') }}" class="btn btn-futuristic btn-lg">
+                            <i class="fas fa-plus"></i> Create Your First Project
+                        </a>
+                        <a href="{{ url_for('main.blog') }}" class="btn btn-outline-futuristic btn-lg">
+                            <i class="fas fa-book"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Project Status Update Modal -->
+<div class="modal fade" id="statusUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title text-gradient">Update Project Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="statusUpdateForm">
+                    <input type="hidden" id="projectId" name="project_id">
+                    
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label-futuristic">New Status</label>
+                        <select class="form-control form-control-futuristic" id="newStatus" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="newProgress" class="form-label-futuristic">Progress (%)</label>
+                        <input type="range" class="form-range" id="newProgress" name="progress" 
+                               min="0" max="100" value="0" oninput="updateProgressDisplay(this.value)">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">0%</small>
+                            <small class="text-primary" id="progressDisplay">0%</small>
+                            <small class="text-muted">100%</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-outline-futuristic" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-futuristic" onclick="saveStatusUpdate()">
+                    <i class="fas fa-save"></i> Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.project-card {
+    transition: all 0.3s ease;
+}
+
+.project-card.hidden {
+    display: none;
+}
+
+.status-pending { background: rgba(255, 179, 71, 0.2); color: var(--warning-color); border: 1px solid var(--warning-color); }
+.status-in_progress { background: rgba(0, 153, 255, 0.2); color: var(--info-color); border: 1px solid var(--info-color); }
+.status-completed { background: rgba(0, 255, 136, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
+.status-cancelled { background: rgba(255, 71, 87, 0.2); color: var(--error-color); border: 1px solid var(--error-color); }
+
+.btn-outline-futuristic.active {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+    color: white;
+}
+
+.page-link.glass-card {
+    background: var(--glass-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.page-link.glass-card:hover {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: var(--primary-green);
+    color: var(--text-primary);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterProjects(status) {
+    const cards = document.querySelectorAll('.project-card');
+    const buttons = document.querySelectorAll('.btn-outline-futuristic.btn-sm');
+    
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter cards
+    cards.forEach(card => {
+        if (status === 'all' || card.dataset.status === status) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function searchProjects(query) {
+    const cards = document.querySelectorAll('.project-card');
+    const searchTerm = query.toLowerCase();
+    
+    cards.forEach(card => {
+        const title = card.dataset.title;
+        const type = card.dataset.type;
+        
+        if (title.includes(searchTerm) || type.includes(searchTerm)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function viewProject(projectId) {
+    showNotification('Opening project details...', 'info');
+    // Implementation for viewing project details
+    // Could open a modal or navigate to a detailed page
+}
+
+function editProject(projectId) {
+    showNotification('Opening project editor...', 'info');
+    // Implementation for editing project
+}
+
+function updateProjectStatus(projectId) {
+    document.getElementById('projectId').value = projectId;
+    const modal = new bootstrap.Modal(document.getElementById('statusUpdateModal'));
+    modal.show();
+}
+
+function updateProgressDisplay(value) {
+    document.getElementById('progressDisplay').textContent = value + '%';
+}
+
+function saveStatusUpdate() {
+    const form = document.getElementById('statusUpdateForm');
+    const formData = new FormData(form);
+    const projectId = document.getElementById('projectId').value;
+    
+    fetch(`/api/update-project-status/${projectId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            status: formData.get('status'),
+            progress: parseInt(formData.get('progress'))
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Project status updated successfully!', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showNotification('Failed to update project status', 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Network error occurred', 'error');
+        console.error('Error:', error);
+    });
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('statusUpdateModal'));
+    modal.hide();
+}
+
+function exportProjects() {
+    showNotification('Preparing project export...', 'info');
+    // Implementation for exporting projects
+}
+</script>
+{% endblock %}

@@ -1,0 +1,632 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center py-4">
+        <div class="col-lg-10">
+            <!-- Profile Header -->
+            <div class="glass-card mb-4 animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="profile-image-container">
+                            {% if current_user.profile_image %}
+                                <img src="{{ url_for('main.uploaded_file', filename=current_user.profile_image) }}" 
+                                     class="profile-image" alt="Profile Picture">
+                            {% else %}
+                                <div class="profile-image-placeholder">
+                                    <i class="fas fa-user fa-4x text-primary"></i>
+                                </div>
+                            {% endif %}
+                            <div class="profile-image-overlay">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <h2 class="text-gradient mb-2">{{ current_user.get_full_name() }}</h2>
+                        <p class="text-secondary lead mb-2">@{{ current_user.username }}</p>
+                        <p class="text-muted mb-3">{{ current_user.email }}</p>
+                        <div class="d-flex gap-2 align-items-center">
+                            {% if current_user.is_verified %}
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle"></i> Verified
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-pending">
+                                    <i class="fas fa-clock"></i> Pending Verification
+                                </span>
+                            {% endif %}
+                            <span class="badge bg-secondary">{{ current_user.role.value.replace('_', ' ').title() }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Profile Information -->
+                <div class="col-lg-8 mb-4">
+                    <div class="glass-card animate-on-scroll">
+                        <h4 class="text-gradient mb-4">
+                            <i class="fas fa-user-edit"></i> Profile Information
+                        </h4>
+                        
+                        <form method="POST" action="{{ url_for('auth.profile') }}" enctype="multipart/form-data">
+                            <!-- Basic Information -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label-futuristic">First Name</label>
+                                    <input type="text" class="form-control form-control-futuristic" 
+                                           id="first_name" name="first_name" 
+                                           value="{{ current_user.first_name or '' }}"
+                                           placeholder="Enter your first name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label-futuristic">Last Name</label>
+                                    <input type="text" class="form-control form-control-futuristic" 
+                                           id="last_name" name="last_name" 
+                                           value="{{ current_user.last_name or '' }}"
+                                           placeholder="Enter your last name">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label-futuristic">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary">
+                                        <i class="fas fa-phone text-primary"></i>
+                                    </span>
+                                    <input type="tel" class="form-control form-control-futuristic" 
+                                           id="phone" name="phone" 
+                                           value="{{ current_user.phone or '' }}"
+                                           placeholder="+1 (555) 123-4567">
+                                </div>
+                            </div>
+                            
+                            <!-- Profile Image Upload -->
+                            <div class="mb-4">
+                                <label for="profile_image" class="form-label-futuristic">Profile Image</label>
+                                <div class="file-upload-area" onclick="document.getElementById('profile_image').click();">
+                                    <input type="file" id="profile_image" name="profile_image" 
+                                           accept=".jpg,.jpeg,.png" style="display: none;">
+                                    <div class="text-center">
+                                        <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                                        <h6 class="text-gradient">Update Profile Picture</h6>
+                                        <p class="text-secondary small">
+                                            Click to upload or drag and drop<br>
+                                            JPG, PNG (Max 5MB)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-futuristic">
+                                    <i class="fas fa-save"></i> Update Profile
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="col-lg-4">
+                    <!-- Change Password -->
+                    <div class="glass-card mb-4 animate-on-scroll">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-lock"></i> Security
+                        </h5>
+                        
+                        <form method="POST" action="{{ url_for('auth.profile') }}" id="passwordForm">
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label-futuristic">Current Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </span>
+                                    <input type="password" class="form-control form-control-futuristic" 
+                                           id="current_password" name="current_password" 
+                                           placeholder="Enter current password">
+                                    <button class="btn btn-outline-secondary" type="button" 
+                                            onclick="togglePassword('current_password')">
+                                        <i class="fas fa-eye" id="toggleIcon1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label-futuristic">New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary">
+                                        <i class="fas fa-key text-primary"></i>
+                                    </span>
+                                    <input type="password" class="form-control form-control-futuristic" 
+                                           id="new_password" name="new_password" 
+                                           placeholder="Enter new password">
+                                    <button class="btn btn-outline-secondary" type="button" 
+                                            onclick="togglePassword('new_password')">
+                                        <i class="fas fa-eye" id="toggleIcon2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label-futuristic">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary">
+                                        <i class="fas fa-check text-primary"></i>
+                                    </span>
+                                    <input type="password" class="form-control form-control-futuristic" 
+                                           id="confirm_password" name="confirm_password" 
+                                           placeholder="Confirm new password">
+                                    <button class="btn btn-outline-secondary" type="button" 
+                                            onclick="togglePassword('confirm_password')">
+                                        <i class="fas fa-eye" id="toggleIcon3"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="password-strength" class="mb-3"></div>
+                            
+                            <button type="submit" class="btn btn-outline-futuristic w-100">
+                                <i class="fas fa-shield-alt"></i> Change Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Account Stats -->
+                    <div class="glass-card animate-on-scroll">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-chart-bar"></i> Account Statistics
+                        </h5>
+                        
+                        <div class="account-stat mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-secondary">Projects</span>
+                                <strong class="text-primary">{{ current_user.projects|length }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="account-stat mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-secondary">Contracts</span>
+                                <strong class="text-success">{{ current_user.contracts|length }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="account-stat mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-secondary">Messages Sent</span>
+                                <strong class="text-info">{{ current_user.messages_sent|length }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="account-stat mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-secondary">Member Since</span>
+                                <strong class="text-warning">{{ current_user.created_at.strftime('%B %Y') }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <small class="text-muted">
+                                Last updated: {{ current_user.updated_at.strftime('%B %d, %Y') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Verification -->
+            {% if not current_user.is_verified %}
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="glass-card animate-on-scroll">
+                        <h4 class="text-gradient mb-4">
+                            <i class="fas fa-shield-check"></i> Identity Verification
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="verification-card">
+                                    <div class="verification-header">
+                                        <i class="fas fa-id-card fa-2x text-primary mb-2"></i>
+                                        <h6>ID Card Verification</h6>
+                                    </div>
+                                    <div class="verification-status">
+                                        {% if current_user.id_card_path %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-clock"></i> Under Review
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-cancelled">
+                                                <i class="fas fa-times"></i> Not Uploaded
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if not current_user.id_card_path %}
+                                    <p class="text-secondary small mt-2">
+                                        Upload a clear photo of your government-issued ID card for verification.
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="verification-card">
+                                    <div class="verification-header">
+                                        <i class="fas fa-signature fa-2x text-primary mb-2"></i>
+                                        <h6>Digital Signature</h6>
+                                    </div>
+                                    <div class="verification-status">
+                                        {% if current_user.signature_path %}
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-clock"></i> Under Review
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-cancelled">
+                                                <i class="fas fa-times"></i> Not Uploaded
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if not current_user.signature_path %}
+                                    <p class="text-secondary small mt-2">
+                                        Upload your digital signature for contract signing purposes.
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="text-warning mb-3">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                Complete verification to unlock all platform features
+                            </p>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-futuristic">
+                                <i class="fas fa-upload"></i> Upload Documents
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Danger Zone -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="glass-card border-danger animate-on-scroll">
+                        <h5 class="text-danger mb-3">
+                            <i class="fas fa-exclamation-triangle"></i> Danger Zone
+                        </h5>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-secondary">Delete Account</h6>
+                                <p class="text-muted small mb-0">
+                                    Permanently delete your account and all associated data. This action cannot be undone.
+                                </p>
+                            </div>
+                            <button class="btn btn-outline-danger" onclick="confirmDeleteAccount()">
+                                <i class="fas fa-trash"></i> Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.profile-image-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid transparent;
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    padding: 3px;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    background: var(--dark-bg);
+}
+
+.profile-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--glass-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.profile-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+}
+
+.profile-image-container:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.profile-image-overlay i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.input-group-text {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+.file-upload-area {
+    border: 2px dashed rgba(0, 255, 136, 0.3);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary-green);
+    background: rgba(0, 255, 136, 0.05);
+}
+
+.account-stat {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.account-stat:last-child {
+    border-bottom: none;
+}
+
+.verification-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.verification-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.verification-header h6 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.status-pending { background: rgba(255, 179, 71, 0.2); color: var(--warning-color); border: 1px solid var(--warning-color); }
+.status-active { background: rgba(0, 255, 136, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
+.status-cancelled { background: rgba(255, 71, 87, 0.2); color: var(--error-color); border: 1px solid var(--error-color); }
+
+.border-danger {
+    border-color: rgba(255, 71, 87, 0.3) !important;
+}
+
+.glass-card.border-danger {
+    background: rgba(255, 71, 87, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const iconId = inputId === 'current_password' ? 'toggleIcon1' : 
+                   inputId === 'new_password' ? 'toggleIcon2' : 'toggleIcon3';
+    const icon = document.getElementById(iconId);
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+// Password strength indicator
+document.getElementById('new_password').addEventListener('input', function() {
+    const password = this.value;
+    const strength = calculatePasswordStrength(password);
+    updatePasswordStrength(strength);
+});
+
+function calculatePasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
+}
+
+function updatePasswordStrength(strength) {
+    const colors = ['#ff4757', '#ff6b47', '#ffa502', '#2ed573', '#00ff88'];
+    const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+    
+    let indicator = document.getElementById('password-strength');
+    
+    if (strength === 0 && document.getElementById('new_password').value === '') {
+        indicator.innerHTML = '';
+        return;
+    }
+    
+    indicator.innerHTML = `
+        <div class="progress progress-futuristic" style="height: 4px;">
+            <div class="progress-bar-futuristic" style="width: ${strength * 20}%; background: ${colors[strength] || '#ff4757'};"></div>
+        </div>
+        <small class="text-muted">${labels[strength] || 'Enter password'}</small>
+    `;
+}
+
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = this.value;
+    
+    if (confirmPassword && newPassword !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+    }
+});
+
+// Profile image upload preview
+document.getElementById('profile_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const profileImg = document.querySelector('.profile-image');
+            const placeholder = document.querySelector('.profile-image-placeholder');
+            
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            
+            if (profileImg) {
+                profileImg.src = e.target.result;
+            } else {
+                // Create new image element
+                const newImg = document.createElement('img');
+                newImg.className = 'profile-image';
+                newImg.src = e.target.result;
+                newImg.alt = 'Profile Picture';
+                document.querySelector('.profile-image-container').appendChild(newImg);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// File upload drag and drop
+const uploadArea = document.querySelector('.file-upload-area');
+
+uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('profile_image').files = files;
+        // Trigger change event
+        document.getElementById('profile_image').dispatchEvent(new Event('change'));
+    }
+});
+
+// Form validation
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    const currentPassword = document.getElementById('current_password').value;
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    // Only validate if user is trying to change password
+    if (currentPassword || newPassword || confirmPassword) {
+        if (!currentPassword) {
+            e.preventDefault();
+            showNotification('Current password is required', 'error');
+            return;
+        }
+        
+        if (!newPassword) {
+            e.preventDefault();
+            showNotification('New password is required', 'error');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            showNotification('Passwords do not match', 'error');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            e.preventDefault();
+            showNotification('Password must be at least 8 characters long', 'error');
+            return;
+        }
+    }
+});
+
+function confirmDeleteAccount() {
+    if (confirm('Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently delete all your data including projects, contracts, and messages.')) {
+        if (confirm('This is your final warning. Type "DELETE" in the prompt to confirm account deletion.')) {
+            const confirmation = prompt('Type "DELETE" to confirm:');
+            if (confirmation === 'DELETE') {
+                showNotification('Account deletion process initiated. You will be contacted for final confirmation.', 'warning');
+                // In real implementation, this would trigger account deletion process
+            } else {
+                showNotification('Account deletion cancelled', 'info');
+            }
+        }
+    }
+}
+
+// Auto-save profile changes (optional enhancement)
+let profileChangeTimeout;
+document.querySelectorAll('#first_name, #last_name, #phone').forEach(input => {
+    input.addEventListener('input', function() {
+        clearTimeout(profileChangeTimeout);
+        profileChangeTimeout = setTimeout(() => {
+            // Could auto-save changes here
+            console.log('Profile data changed, consider auto-saving');
+        }, 2000);
+    });
+});
+</script>
+{% endblock %}

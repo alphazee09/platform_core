@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section animate-on-scroll">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <h1 class="hero-title typing-effect">Mazin Yahia</h1>
+                <h2 class="hero-subtitle fade-in">Futuristic Software Engineering Platform</h2>
+                <p class="lead text-secondary mb-4 fade-in">
+                    Welcome to the future of software development. Experience cutting-edge project management, 
+                    seamless contracts, secure payments, and real-time communication in one unified platform.
+                </p>
+                <div class="d-flex gap-3 flex-wrap fade-in">
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-futuristic">
+                            <i class="fas fa-rocket"></i> Start Your Journey
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-futuristic">
+                            <i class="fas fa-sign-in-alt"></i> Access Platform
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-futuristic">
+                            <i class="fas fa-dashboard"></i> Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('main.projects') }}" class="btn btn-outline-futuristic">
+                            <i class="fas fa-project-diagram"></i> View Projects
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="glass-card text-center">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" 
+                         alt="Mazin Yahia Logo" class="img-fluid mb-4" style="max-width: 300px;">
+                    <h3 class="text-gradient">Future-Ready Technology</h3>
+                    <p class="text-secondary">
+                        Built with advanced animations, glassmorphism design, and cutting-edge user experience 
+                        that feels like it's from 2050.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="py-5 animate-on-scroll">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 mb-3">Platform Features</h2>
+            <p class="lead text-secondary">Everything you need for modern software engineering</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-project-diagram fa-3x text-gradient"></i>
+                    </div>
+                    <h4>Project Management</h4>
+                    <p class="text-secondary">
+                        Advanced project tracking with milestones, progress monitoring, and file management. 
+                        Keep everything organized and on schedule.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-file-contract fa-3x text-gradient"></i>
+                    </div>
+                    <h4>Smart Contracts</h4>
+                    <p class="text-secondary">
+                        Digital contract creation, signing, and management with lifecycle tracking. 
+                        Secure and legally compliant documentation.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-credit-card fa-3x text-gradient"></i>
+                    </div>
+                    <h4>Secure Payments</h4>
+                    <p class="text-secondary">
+                        Integrated Stripe payments with invoice generation, milestone-based billing, 
+                        and comprehensive payment tracking.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-comments fa-3x text-gradient"></i>
+                    </div>
+                    <h4>Real-time Communication</h4>
+                    <p class="text-secondary">
+                        Advanced messaging system with file attachments, threading, and notifications. 
+                        Stay connected with your team.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-gradient"></i>
+                    </div>
+                    <h4>Security & Authentication</h4>
+                    <p class="text-secondary">
+                        JWT-based authentication, role-based access control, and identity verification 
+                        for maximum security.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card text-center h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-line fa-3x text-gradient"></i>
+                    </div>
+                    <h4>Analytics & Reporting</h4>
+                    <p class="text-secondary">
+                        Comprehensive analytics dashboard with project insights, performance metrics, 
+                        and detailed reporting capabilities.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- GitHub Showcase -->
+{% if featured_repos %}
+<section class="py-5 animate-on-scroll">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 mb-3">Featured Projects</h2>
+            <p class="lead text-secondary">Explore some of my latest work on GitHub</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for repo in featured_repos %}
+            <div class="col-lg-4 col-md-6 animate-child">
+                <div class="glass-card h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="text-gradient">{{ repo.name }}</h5>
+                        <span class="badge status-badge status-active">Featured</span>
+                    </div>
+                    <p class="text-secondary mb-3">{{ repo.description or 'No description available' }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        {% if repo.language %}
+                            <span class="badge bg-secondary">{{ repo.language }}</span>
+                        {% endif %}
+                        <div class="text-end">
+                            <small class="text-muted">
+                                <i class="fas fa-star"></i> {{ repo.stars }}
+                                <i class="fas fa-code-branch ms-2"></i> {{ repo.forks }}
+                            </small>
+                        </div>
+                    </div>
+                    <a href="{{ repo.url }}" target="_blank" class="btn btn-outline-futuristic w-100">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('main.github_repos') }}" class="btn btn-futuristic">
+                <i class="fab fa-github"></i> View All Repositories
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Blog Posts -->
+{% if featured_posts %}
+<section class="py-5 animate-on-scroll">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 mb-3">Latest Blog Posts</h2>
+            <p class="lead text-secondary">Stay updated with the latest in software engineering</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for post in featured_posts %}
+            <div class="col-lg-4 animate-child">
+                <div class="glass-card h-100">
+                    {% if post.featured_image %}
+                        <img src="{{ url_for('main.uploaded_file', filename=post.featured_image) }}" 
+                             class="img-fluid rounded mb-3" alt="{{ post.title }}">
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary">{{ post.category }}</span>
+                        <small class="text-muted">{{ post.published_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+                    <h5 class="text-gradient mb-3">{{ post.title }}</h5>
+                    <p class="text-secondary mb-3">{{ post.excerpt or post.content[:150] + '...' }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-eye"></i> {{ post.views }}
+                            <i class="fas fa-heart ms-2"></i> {{ post.likes }}
+                        </small>
+                        <a href="{{ url_for('main.blog_post', post_id=post.id) }}" class="btn btn-outline-futuristic btn-sm">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('main.blog') }}" class="btn btn-futuristic">
+                <i class="fas fa-blog"></i> View All Posts
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+{% if not current_user.is_authenticated %}
+<section class="py-5 text-center animate-on-scroll">
+    <div class="container">
+        <div class="glass-card">
+            <h2 class="display-5 mb-3 text-gradient">Ready to Experience the Future?</h2>
+            <p class="lead text-secondary mb-4">
+                Join the platform that's revolutionizing software engineering. 
+                Start your journey with cutting-edge technology today.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-futuristic btn-lg">
+                    <i class="fas fa-rocket"></i> Get Started Now
+                </a>
+                <a href="{{ url_for('main.blog') }}" class="btn btn-outline-futuristic btn-lg">
+                    <i class="fas fa-book"></i> Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.feature-icon i {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+}
+
+.min-vh-100 {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+</style>
+{% endblock %}

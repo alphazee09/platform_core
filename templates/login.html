@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-5">
+            <div class="form-futuristic animate-on-scroll">
+                <div class="text-center mb-4">
+                    <img src="{{ url_for('static', filename='images/logo.svg') }}" 
+                         alt="Mazin Yahia" height="60" class="mb-3">
+                    <h2 class="text-gradient">Welcome Back</h2>
+                    <p class="text-secondary">Access your futuristic workspace</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label-futuristic">Username or Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary">
+                                <i class="fas fa-user text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-futuristic" 
+                                   id="username" name="username" required 
+                                   placeholder="Enter your username or email">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label-futuristic">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-secondary">
+                                <i class="fas fa-lock text-primary"></i>
+                            </span>
+                            <input type="password" class="form-control form-control-futuristic" 
+                                   id="password" name="password" required 
+                                   placeholder="Enter your password">
+                            <button class="btn btn-outline-secondary" type="button" 
+                                    onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                        <label class="form-check-label text-secondary" for="remember_me">
+                            Remember me for 30 days
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-futuristic w-100 mb-3">
+                        <i class="fas fa-sign-in-alt"></i> Access Platform
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="text-secondary mb-2">
+                        <a href="{{ url_for('auth.reset_password') }}" class="text-decoration-none">
+                            Forgot your password?
+                        </a>
+                    </p>
+                    <p class="text-secondary">
+                        New to the platform? 
+                        <a href="{{ url_for('auth.register') }}" class="text-decoration-none text-gradient">
+                            Create Account
+                        </a>
+                    </p>
+                </div>
+                
+                <!-- Security Features -->
+                <div class="mt-4 pt-3 border-top border-secondary">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fas fa-shield-alt text-success mb-2"></i>
+                            <small class="d-block text-muted">Secure</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-lock text-warning mb-2"></i>
+                            <small class="d-block text-muted">Encrypted</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-user-check text-info mb-2"></i>
+                            <small class="d-block text-muted">Verified</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.min-vh-100 {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.input-group-text {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById('toggleIcon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+</script>
+{% endblock %}

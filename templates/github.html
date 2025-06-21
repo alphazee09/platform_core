@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}GitHub Showcase - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- GitHub Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="glass-card text-center animate-on-scroll">
+                <h1 class="text-gradient mb-3">
+                    <i class="fab fa-github"></i> GitHub Showcase
+                </h1>
+                <p class="text-secondary lead">
+                    Explore my open source projects and contributions to the developer community
+                </p>
+                <a href="https://github.com/alphazee09" target="_blank" class="btn btn-futuristic">
+                    <i class="fab fa-github"></i> Visit GitHub Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Repository Filters -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-futuristic btn-sm active" onclick="filterRepos('all')">
+                    All Repositories
+                </button>
+                <button class="btn btn-outline-futuristic btn-sm" onclick="filterRepos('featured')">
+                    Featured
+                </button>
+                <button class="btn btn-outline-futuristic btn-sm" onclick="filterRepos('javascript')">
+                    JavaScript
+                </button>
+                <button class="btn btn-outline-futuristic btn-sm" onclick="filterRepos('python')">
+                    Python
+                </button>
+                <button class="btn btn-outline-futuristic btn-sm" onclick="filterRepos('web')">
+                    Web Development
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-secondary">
+                    <i class="fas fa-search text-primary"></i>
+                </span>
+                <input type="text" class="form-control form-control-futuristic" 
+                       placeholder="Search repositories..." onkeyup="searchRepos(this.value)">
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Stats -->
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ repos|length }}</div>
+                <div class="stat-label">Public Repos</div>
+                <div class="mt-2">
+                    <i class="fab fa-github fa-2x text-primary"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ repos|map(attribute='stars')|sum }}</div>
+                <div class="stat-label">Total Stars</div>
+                <div class="mt-2">
+                    <i class="fas fa-star fa-2x text-warning"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ repos|map(attribute='forks')|sum }}</div>
+                <div class="stat-label">Total Forks</div>
+                <div class="mt-2">
+                    <i class="fas fa-code-branch fa-2x text-info"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ repos|selectattr('language')|map(attribute='language')|unique|list|length }}</div>
+                <div class="stat-label">Languages</div>
+                <div class="mt-2">
+                    <i class="fas fa-code fa-2x text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Repositories Grid -->
+    {% if repos %}
+        <div class="row" id="repos-container">
+            {% for repo in repos %}
+            <div class="col-lg-6 col-xl-4 mb-4 repo-card animate-child" 
+                 data-name="{{ repo.name.lower() }}"
+                 data-language="{{ repo.language.lower() if repo.language else '' }}"
+                 data-featured="{{ 'true' if repo.is_featured else 'false' }}">
+                <div class="glass-card h-100 github-repo-card">
+                    <!-- Repo Header -->
+                    <div class="repo-header mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="repo-title text-gradient mb-1">
+                                    <i class="fab fa-github me-2"></i>{{ repo.name }}
+                                </h5>
+                                {% if repo.is_featured %}
+                                    <span class="badge status-badge status-active mb-2">Featured</span>
+                                {% endif %}
+                            </div>
+                            <div class="repo-stats">
+                                <span class="stat-item">
+                                    <i class="fas fa-star text-warning"></i> {{ repo.stars }}
+                                </span>
+                                <span class="stat-item ms-2">
+                                    <i class="fas fa-code-branch text-info"></i> {{ repo.forks }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repo Description -->
+                    <p class="repo-description text-secondary mb-3">
+                        {{ repo.description or 'No description available for this repository.' }}
+                    </p>
+
+                    <!-- Repo Language -->
+                    {% if repo.language %}
+                    <div class="repo-language mb-3">
+                        <span class="language-badge language-{{ repo.language.lower() }}">
+                            <i class="fas fa-circle me-1"></i>{{ repo.language }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Repo Technologies/Topics -->
+                    <div class="repo-topics mb-3">
+                        <!-- Mock topics based on language and name -->
+                        {% set topics = [] %}
+                        {% if 'web' in repo.name.lower() or 'website' in repo.name.lower() %}
+                            {% set _ = topics.append('web-development') %}
+                        {% endif %}
+                        {% if 'api' in repo.name.lower() %}
+                            {% set _ = topics.append('api') %}
+                        {% endif %}
+                        {% if 'bot' in repo.name.lower() %}
+                            {% set _ = topics.append('automation') %}
+                        {% endif %}
+                        {% if repo.language == 'JavaScript' %}
+                            {% set _ = topics.extend(['javascript', 'frontend']) %}
+                        {% elif repo.language == 'Python' %}
+                            {% set _ = topics.extend(['python', 'backend']) %}
+                        {% endif %}
+                        
+                        {% for topic in topics[:3] %}
+                        <span class="topic-tag">{{ topic }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Repo Actions -->
+                    <div class="repo-actions mt-auto">
+                        <div class="d-flex gap-2">
+                            <a href="{{ repo.url }}" target="_blank" class="btn btn-outline-futuristic btn-sm flex-fill">
+                                <i class="fab fa-github"></i> View Code
+                            </a>
+                            <button class="btn btn-outline-futuristic btn-sm" onclick="cloneRepo('{{ repo.url }}')">
+                                <i class="fas fa-download"></i> Clone
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Repo Footer -->
+                    <div class="repo-footer mt-3 pt-3 border-top border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Updated {{ repo.updated_at.strftime('%b %d, %Y') }}
+                            </small>
+                            <div class="repo-actions-small">
+                                <button class="btn btn-link btn-sm text-muted p-0 me-2" onclick="starRepo('{{ repo.name }}')">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                <button class="btn btn-link btn-sm text-muted p-0" onclick="shareRepo('{{ repo.name }}', '{{ repo.url }}')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="glass-card text-center py-5 animate-on-scroll">
+                    <i class="fab fa-github fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">No repositories found</h3>
+                    <p class="text-secondary lead mb-4">
+                        Check back soon for exciting open source projects and contributions.
+                    </p>
+                    <a href="https://github.com/alphazee09" target="_blank" class="btn btn-futuristic">
+                        <i class="fab fa-github"></i> Visit GitHub Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Clone Instructions Modal -->
+<div class="modal fade" id="cloneModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title text-gradient">Clone Repository</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label-futuristic">Git Clone Command</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-futuristic" 
+                               id="cloneCommand" readonly>
+                        <button class="btn btn-outline-futuristic" onclick="copyCloneCommand()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-futuristic">Instructions</label>
+                    <ol class="text-secondary">
+                        <li>Copy the command above</li>
+                        <li>Open your terminal or command prompt</li>
+                        <li>Navigate to your desired directory</li>
+                        <li>Paste and run the command</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-outline-futuristic" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-futuristic" onclick="copyCloneCommand()">
+                    <i class="fas fa-copy"></i> Copy Command
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.github-repo-card {
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.github-repo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.repo-title {
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.repo-description {
+    flex-grow: 1;
+    min-height: 3rem;
+}
+
+.stat-item {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.language-badge {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--primary-green);
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.language-javascript { background: rgba(241, 224, 90, 0.1); color: #f1e05a; border-color: rgba(241, 224, 90, 0.3); }
+.language-python { background: rgba(53, 114, 165, 0.1); color: #3572a5; border-color: rgba(53, 114, 165, 0.3); }
+.language-html { background: rgba(227, 76, 38, 0.1); color: #e34c26; border-color: rgba(227, 76, 38, 0.3); }
+.language-css { background: rgba(86, 61, 124, 0.1); color: #563d7c; border-color: rgba(86, 61, 124, 0.3); }
+.language-typescript { background: rgba(43, 116, 137, 0.1); color: #2b7489; border-color: rgba(43, 116, 137, 0.3); }
+
+.topic-tag {
+    background: rgba(0, 153, 255, 0.1);
+    color: var(--primary-blue);
+    padding: 0.2rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+    display: inline-block;
+    border: 1px solid rgba(0, 153, 255, 0.3);
+}
+
+.repo-card {
+    transition: all 0.3s ease;
+}
+
+.repo-card.hidden {
+    display: none;
+}
+
+.btn-outline-futuristic.active {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+    color: white;
+    border-color: transparent;
+}
+
+.repo-actions {
+    margin-top: auto;
+}
+
+.repo-footer {
+    flex-shrink: 0;
+}
+
+.status-active {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterRepos(filter) {
+    const repoCards = document.querySelectorAll('.repo-card');
+    const buttons = document.querySelectorAll('.btn-outline-futuristic.btn-sm');
+    
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter cards
+    repoCards.forEach(card => {
+        let show = false;
+        
+        switch(filter) {
+            case 'all':
+                show = true;
+                break;
+            case 'featured':
+                show = card.dataset.featured === 'true';
+                break;
+            case 'javascript':
+                show = card.dataset.language.includes('javascript');
+                break;
+            case 'python':
+                show = card.dataset.language.includes('python');
+                break;
+            case 'web':
+                show = card.dataset.name.includes('web') || 
+                       card.dataset.language.includes('javascript') ||
+                       card.dataset.language.includes('html') ||
+                       card.dataset.language.includes('css');
+                break;
+        }
+        
+        if (show) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function searchRepos(query) {
+    const repoCards = document.querySelectorAll('.repo-card');
+    const searchTerm = query.toLowerCase();
+    
+    repoCards.forEach(card => {
+        const name = card.dataset.name;
+        const language = card.dataset.language;
+        
+        if (name.includes(searchTerm) || language.includes(searchTerm)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function cloneRepo(repoUrl) {
+    const cloneCommand = `git clone ${repoUrl}`;
+    document.getElementById('cloneCommand').value = cloneCommand;
+    
+    const modal = new bootstrap.Modal(document.getElementById('cloneModal'));
+    modal.show();
+}
+
+function copyCloneCommand() {
+    const command = document.getElementById('cloneCommand');
+    command.select();
+    command.setSelectionRange(0, 99999); // For mobile devices
+    
+    navigator.clipboard.writeText(command.value).then(() => {
+        showNotification('Clone command copied to clipboard!', 'success');
+    }).catch(() => {
+        showNotification('Failed to copy command', 'error');
+    });
+}
+
+function starRepo(repoName) {
+    showNotification(`Starred ${repoName}! Visit GitHub to actually star it.`, 'info');
+}
+
+function shareRepo(repoName, repoUrl) {
+    if (navigator.share) {
+        navigator.share({
+            title: `Check out ${repoName} on GitHub`,
+            url: repoUrl
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(repoUrl).then(() => {
+            showNotification('Repository URL copied to clipboard!', 'success');
+        }).catch(() => {
+            showNotification('Failed to copy URL', 'error');
+        });
+    }
+}
+
+// Initialize tooltips for repo stats
+document.addEventListener('DOMContentLoaded', function() {
+    // Add tooltips to star and fork counts
+    const statItems = document.querySelectorAll('.stat-item');
+    statItems.forEach(item => {
+        if (item.querySelector('.fa-star')) {
+            item.title = 'GitHub Stars';
+        } else if (item.querySelector('.fa-code-branch')) {
+            item.title = 'GitHub Forks';
+        }
+    });
+});
+</script>
+{% endblock %}

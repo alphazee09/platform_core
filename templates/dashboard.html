@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="text-gradient mb-2">Welcome back, {{ current_user.get_full_name() }}!</h1>
+                        <p class="text-secondary lead mb-0">
+                            Ready to continue your futuristic journey? Here's what's happening in your workspace.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{{ url_for('main.create_project') }}" class="btn btn-futuristic">
+                                <i class="fas fa-plus"></i> New Project
+                            </a>
+                            <a href="{{ url_for('main.messages') }}" class="btn btn-outline-futuristic">
+                                <i class="fas fa-envelope"></i> Messages
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ projects|length }}</div>
+                <div class="stat-label">Active Projects</div>
+                <div class="mt-2">
+                    <i class="fas fa-project-diagram fa-2x text-primary"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ contracts|length }}</div>
+                <div class="stat-label">Contracts</div>
+                <div class="mt-2">
+                    <i class="fas fa-file-contract fa-2x text-success"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">{{ messages|length }}</div>
+                <div class="stat-label">Unread Messages</div>
+                <div class="mt-2">
+                    <i class="fas fa-envelope fa-2x text-warning"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3 animate-child">
+            <div class="stat-card">
+                <div class="stat-number">
+                    {% set completed_projects = projects|selectattr('status.value', 'equalto', 'completed')|list %}
+                    {{ ((completed_projects|length / projects|length) * 100)|round|int if projects else 0 }}%
+                </div>
+                <div class="stat-label">Success Rate</div>
+                <div class="mt-2">
+                    <i class="fas fa-chart-line fa-2x text-info"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Projects -->
+        <div class="col-lg-8 mb-4">
+            <div class="glass-card animate-on-scroll">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-gradient mb-0">
+                        <i class="fas fa-project-diagram"></i> Recent Projects
+                    </h3>
+                    <a href="{{ url_for('main.projects') }}" class="btn btn-outline-futuristic btn-sm">
+                        View All
+                    </a>
+                </div>
+                
+                {% if projects %}
+                    <div class="table-responsive">
+                        <table class="table table-futuristic">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Type</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Deadline</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in projects %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ project.title }}</strong>
+                                            <small class="d-block text-muted">{{ project.description[:50] }}...</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ project.project_type }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="progress progress-futuristic" style="width: 100px;">
+                                            <div class="progress-bar-futuristic" style="width: {{ project.progress }}%;"></div>
+                                        </div>
+                                        <small class="text-muted">{{ project.progress }}%</small>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ project.status.value }}">
+                                            {{ project.status.value.replace('_', ' ').title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if project.deadline %}
+                                            <small class="text-muted">{{ project.deadline.strftime('%m/%d/%Y') }}</small>
+                                        {% else %}
+                                            <small class="text-muted">No deadline</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No projects yet</h5>
+                        <p class="text-secondary">Start your first project to see it here.</p>
+                        <a href="{{ url_for('main.create_project') }}" class="btn btn-futuristic">
+                            <i class="fas fa-plus"></i> Create Project
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Recent Messages -->
+            <div class="glass-card mb-4 animate-on-scroll">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-gradient mb-0">
+                        <i class="fas fa-envelope"></i> Recent Messages
+                    </h5>
+                    <a href="{{ url_for('main.messages') }}" class="btn btn-outline-futuristic btn-sm">
+                        View All
+                    </a>
+                </div>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="border-bottom border-secondary pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong class="text-primary">{{ message.subject }}</strong>
+                            <small class="text-muted">{{ message.sent_at.strftime('%m/%d %H:%M') }}</small>
+                        </div>
+                        <p class="text-secondary small mb-2">{{ message.content[:100] }}...</p>
+                        <small class="text-muted">
+                            From: {{ message.sender.get_full_name() }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-envelope fa-2x text-muted mb-2"></i>
+                        <p class="text-muted small">No new messages</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-card animate-on-scroll">
+                <h5 class="text-gradient mb-3">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.create_project') }}" class="btn btn-outline-futuristic">
+                        <i class="fas fa-plus"></i> New Project
+                    </a>
+                    <a href="{{ url_for('main.contracts') }}" class="btn btn-outline-futuristic">
+                        <i class="fas fa-file-contract"></i> View Contracts
+                    </a>
+                    <a href="{{ url_for('main.payments') }}" class="btn btn-outline-futuristic">
+                        <i class="fas fa-credit-card"></i> Payment History
+                    </a>
+                    <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-futuristic">
+                        <i class="fas fa-user"></i> Update Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Contracts -->
+    {% if contracts %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card animate-on-scroll">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="text-gradient mb-0">
+                        <i class="fas fa-file-contract"></i> Recent Contracts
+                    </h3>
+                    <a href="{{ url_for('main.contracts') }}" class="btn btn-outline-futuristic btn-sm">
+                        View All
+                    </a>
+                </div>
+                
+                <div class="row">
+                    {% for contract in contracts %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="glass-card h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="text-primary">{{ contract.title }}</h6>
+                                <span class="status-badge status-{{ contract.status.value }}">
+                                    {{ contract.status.value.replace('_', ' ').title() }}
+                                </span>
+                            </div>
+                            <p class="text-secondary small mb-2">{{ contract.content[:80] }}...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong class="text-success">${{ "%.2f"|format(contract.total_amount) }}</strong>
+                                <small class="text-muted">{{ contract.created_at.strftime('%m/%d/%Y') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.status-pending { background: rgba(255, 179, 71, 0.2); color: var(--warning-color); border: 1px solid var(--warning-color); }
+.status-in_progress { background: rgba(0, 153, 255, 0.2); color: var(--info-color); border: 1px solid var(--info-color); }
+.status-completed { background: rgba(0, 255, 136, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
+.status-cancelled { background: rgba(255, 71, 87, 0.2); color: var(--error-color); border: 1px solid var(--error-color); }
+.status-active { background: rgba(0, 255, 136, 0.2); color: var(--success-color); border: 1px solid var(--success-color); }
+.status-draft { background: rgba(108, 117, 125, 0.2); color: var(--text-muted); border: 1px solid var(--text-muted); }
+.status-sent { background: rgba(255, 179, 71, 0.2); color: var(--warning-color); border: 1px solid var(--warning-color); }
+.status-signed { background: rgba(0, 153, 255, 0.2); color: var(--info-color); border: 1px solid var(--info-color); }
+.status-expired { background: rgba(255, 71, 87, 0.2); color: var(--error-color); border: 1px solid var(--error-color); }
+</style>
+{% endblock %}

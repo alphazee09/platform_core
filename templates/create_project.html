@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center py-4">
+        <div class="col-lg-8">
+            <div class="form-futuristic animate-on-scroll">
+                <div class="text-center mb-4">
+                    <h2 class="text-gradient mb-2">
+                        <i class="fas fa-plus-circle"></i> Create New Project
+                    </h2>
+                    <p class="text-secondary">Transform your vision into reality with our advanced project management system.</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('main.create_project') }}" enctype="multipart/form-data">
+                    <!-- Basic Information -->
+                    <div class="glass-card mb-4">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-info-circle"></i> Project Information
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label-futuristic">Project Title</label>
+                            <input type="text" class="form-control form-control-futuristic" 
+                                   id="title" name="title" required 
+                                   placeholder="Enter a descriptive project title">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label-futuristic">Project Description</label>
+                            <textarea class="form-control form-control-futuristic" 
+                                      id="description" name="description" rows="4" required
+                                      placeholder="Describe your project in detail. Include goals, requirements, and expected outcomes."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="project_type" class="form-label-futuristic">Project Type</label>
+                                <select class="form-control form-control-futuristic" id="project_type" name="project_type" required>
+                                    <option value="">Select project type</option>
+                                    <option value="web_development">Web Development</option>
+                                    <option value="mobile_app">Mobile App</option>
+                                    <option value="desktop_software">Desktop Software</option>
+                                    <option value="ai_ml">AI/Machine Learning</option>
+                                    <option value="data_analysis">Data Analysis</option>
+                                    <option value="blockchain">Blockchain</option>
+                                    <option value="iot">Internet of Things</option>
+                                    <option value="cybersecurity">Cybersecurity</option>
+                                    <option value="consulting">Consulting</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="budget" class="form-label-futuristic">Budget (USD)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-secondary">
+                                        <i class="fas fa-dollar-sign text-success"></i>
+                                    </span>
+                                    <input type="number" class="form-control form-control-futuristic" 
+                                           id="budget" name="budget" step="0.01" min="0"
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="deadline" class="form-label-futuristic">Project Deadline</label>
+                            <input type="date" class="form-control form-control-futuristic" 
+                                   id="deadline" name="deadline"
+                                   min="{{ (moment().utcnow() + timedelta(days=1)).strftime('%Y-%m-%d') }}">
+                            <small class="text-muted">Optional: Set a target completion date</small>
+                        </div>
+                    </div>
+                    
+                    <!-- File Uploads -->
+                    <div class="glass-card mb-4">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-cloud-upload-alt"></i> Project Files
+                        </h5>
+                        
+                        <div class="file-upload-area" onclick="document.getElementById('project_files').click();">
+                            <input type="file" id="project_files" name="project_files" multiple 
+                                   accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.zip,.rar" style="display: none;">
+                            <div class="text-center">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h5 class="text-gradient">Upload Project Files</h5>
+                                <p class="text-secondary">
+                                    Drag and drop files here or click to browse<br>
+                                    <small>Supported: PDF, DOC, Images, Archives (Max 16MB each)</small>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div id="file-preview" class="mt-3"></div>
+                    </div>
+                    
+                    <!-- Project Requirements -->
+                    <div class="glass-card mb-4">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-tasks"></i> Additional Requirements
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-secondary mb-2">Priority Level</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="priority" id="priority_low" value="low" checked>
+                                    <label class="form-check-label text-secondary" for="priority_low">
+                                        <i class="fas fa-circle text-success"></i> Low Priority
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="priority" id="priority_medium" value="medium">
+                                    <label class="form-check-label text-secondary" for="priority_medium">
+                                        <i class="fas fa-circle text-warning"></i> Medium Priority
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="priority" id="priority_high" value="high">
+                                    <label class="form-check-label text-secondary" for="priority_high">
+                                        <i class="fas fa-circle text-danger"></i> High Priority
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h6 class="text-secondary mb-2">Special Requirements</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="requirements" id="req_mobile" value="mobile_responsive">
+                                    <label class="form-check-label text-secondary" for="req_mobile">
+                                        Mobile Responsive Design
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="requirements" id="req_seo" value="seo_optimized">
+                                    <label class="form-check-label text-secondary" for="req_seo">
+                                        SEO Optimization
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="requirements" id="req_security" value="enhanced_security">
+                                    <label class="form-check-label text-secondary" for="req_security">
+                                        Enhanced Security
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="requirements" id="req_analytics" value="analytics_integration">
+                                    <label class="form-check-label text-secondary" for="req_analytics">
+                                        Analytics Integration
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Preferences -->
+                    <div class="glass-card mb-4">
+                        <h5 class="text-gradient mb-3">
+                            <i class="fas fa-comments"></i> Communication Preferences
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="preferred_contact" class="form-label-futuristic">Preferred Contact Method</label>
+                                <select class="form-control form-control-futuristic" id="preferred_contact" name="preferred_contact">
+                                    <option value="platform">Platform Messages</option>
+                                    <option value="email">Email</option>
+                                    <option value="phone">Phone Call</option>
+                                    <option value="video">Video Conference</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="update_frequency" class="form-label-futuristic">Update Frequency</label>
+                                <select class="form-control form-control-futuristic" id="update_frequency" name="update_frequency">
+                                    <option value="daily">Daily Updates</option>
+                                    <option value="weekly" selected>Weekly Updates</option>
+                                    <option value="milestone">Milestone Updates</option>
+                                    <option value="as_needed">As Needed</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="additional_notes" class="form-label-futuristic">Additional Notes</label>
+                            <textarea class="form-control form-control-futuristic" 
+                                      id="additional_notes" name="additional_notes" rows="3"
+                                      placeholder="Any additional information, special requests, or clarifications..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Terms and Submission -->
+                    <div class="glass-card">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="terms_agree" required>
+                            <label class="form-check-label text-secondary" for="terms_agree">
+                                I agree to the project 
+                                <a href="#" class="text-decoration-none text-gradient">terms and conditions</a> 
+                                and understand that this submission will be reviewed by the admin.
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="updates_agree">
+                            <label class="form-check-label text-secondary" for="updates_agree">
+                                I would like to receive project updates and platform notifications via email.
+                            </label>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-futuristic btn-lg">
+                                <i class="fas fa-rocket"></i> Launch Project
+                            </button>
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    By submitting this project, it will be reviewed and you'll receive a response within 24 hours.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.file-upload-area {
+    border: 2px dashed rgba(0, 255, 136, 0.3);
+    border-radius: 15px;
+    padding: 3rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary-green);
+    background: rgba(0, 255, 136, 0.05);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--primary-blue);
+    background: rgba(0, 153, 255, 0.1);
+    transform: scale(1.02);
+}
+
+.file-preview-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.input-group-text {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// File upload handling
+document.getElementById('project_files').addEventListener('change', function(e) {
+    handleFileSelection(e.target.files);
+});
+
+// Drag and drop functionality
+const uploadArea = document.querySelector('.file-upload-area');
+
+uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    document.getElementById('project_files').files = files;
+    handleFileSelection(files);
+});
+
+function handleFileSelection(files) {
+    const previewContainer = document.getElementById('file-preview');
+    previewContainer.innerHTML = '';
+    
+    if (files.length === 0) return;
+    
+    Array.from(files).forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-preview-item';
+        
+        const fileInfo = document.createElement('div');
+        fileInfo.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-file${getFileIcon(file.type)} text-primary me-2"></i>
+                <div>
+                    <strong>${file.name}</strong>
+                    <small class="d-block text-muted">${formatFileSize(file.size)}</small>
+                </div>
+            </div>
+        `;
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn btn-sm btn-outline-danger';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.onclick = () => removeFile(index);
+        
+        fileItem.appendChild(fileInfo);
+        fileItem.appendChild(removeBtn);
+        previewContainer.appendChild(fileItem);
+    });
+}
+
+function getFileIcon(mimeType) {
+    if (mimeType.includes('image')) return '-image';
+    if (mimeType.includes('pdf')) return '-pdf';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '-word';
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return '-archive';
+    return '';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function removeFile(index) {
+    const fileInput = document.getElementById('project_files');
+    const files = Array.from(fileInput.files);
+    files.splice(index, 1);
+    
+    // Create new FileList
+    const dt = new DataTransfer();
+    files.forEach(file => dt.items.add(file));
+    fileInput.files = dt.files;
+    
+    handleFileSelection(fileInput.files);
+}
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const projectType = document.getElementById('project_type').value;
+    const termsAgreed = document.getElementById('terms_agree').checked;
+    
+    if (!title || !description || !projectType || !termsAgreed) {
+        e.preventDefault();
+        showNotification('Please fill in all required fields and agree to the terms.', 'error');
+        return;
+    }
+    
+    if (title.length < 5) {
+        e.preventDefault();
+        showNotification('Project title must be at least 5 characters long.', 'error');
+        return;
+    }
+    
+    if (description.length < 20) {
+        e.preventDefault();
+        showNotification('Project description must be at least 20 characters long.', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Project...';
+    
+    // Re-enable button after a delay in case of errors
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }, 10000);
+});
+
+// Auto-resize textarea
+document.getElementById('description').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+});
+
+document.getElementById('additional_notes').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+});
+
+// Character counter for description
+document.getElementById('description').addEventListener('input', function() {
+    const maxLength = 1000;
+    const currentLength = this.value.length;
+    
+    let counter = document.getElementById('desc-counter');
+    if (!counter) {
+        counter = document.createElement('small');
+        counter.id = 'desc-counter';
+        counter.className = 'text-muted';
+        this.parentNode.appendChild(counter);
+    }
+    
+    counter.textContent = `${currentLength}/${maxLength} characters`;
+    
+    if (currentLength > maxLength * 0.9) {
+        counter.className = 'text-warning';
+    } else {
+        counter.className = 'text-muted';
+    }
+});
+</script>
+{% endblock %}

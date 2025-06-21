@@ -1,0 +1,513 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - Mazin Yahia Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Messages Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="text-gradient mb-2">
+                            <i class="fas fa-comments"></i> Communication Center
+                        </h1>
+                        <p class="text-secondary lead mb-0">
+                            Real-time messaging with file attachments and threaded conversations.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-futuristic" onclick="showComposeModal()">
+                            <i class="fas fa-plus"></i> New Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Messages Sidebar -->
+        <div class="col-lg-4 mb-4">
+            <div class="glass-card">
+                <!-- Message Tabs -->
+                <ul class="nav nav-pills nav-fill mb-3" id="messageTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="inbox-tab" data-bs-toggle="pill" href="#inbox">
+                            <i class="fas fa-inbox"></i> Inbox ({{ received_messages|length }})
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sent-tab" data-bs-toggle="pill" href="#sent">
+                            <i class="fas fa-paper-plane"></i> Sent ({{ sent_messages|length }})
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Search Messages -->
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-futuristic" 
+                               placeholder="Search messages..." onkeyup="searchMessages(this.value)">
+                    </div>
+                </div>
+
+                <!-- Messages List -->
+                <div class="tab-content" id="messageTabContent">
+                    <!-- Inbox -->
+                    <div class="tab-pane fade show active" id="inbox">
+                        {% if received_messages %}
+                            <div class="messages-list" style="max-height: 60vh; overflow-y: auto;">
+                                {% for message in received_messages %}
+                                <div class="message-item {% if not message.is_read %}unread{% endif %}" 
+                                     onclick="loadMessage({{ message.id }}, 'received')"
+                                     data-message-id="{{ message.id }}"
+                                     data-subject="{{ message.subject.lower() }}"
+                                     data-sender="{{ message.sender.get_full_name().lower() }}">
+                                    <div class="d-flex align-items-start">
+                                        {% if message.sender.profile_image %}
+                                            <img src="{{ url_for('main.uploaded_file', filename=message.sender.profile_image) }}" 
+                                                 class="rounded-circle me-3" width="40" height="40">
+                                        {% else %}
+                                            <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <strong class="text-primary">{{ message.sender.get_full_name() }}</strong>
+                                                <small class="text-muted">{{ message.sent_at.strftime('%m/%d %H:%M') }}</small>
+                                            </div>
+                                            <h6 class="mb-1 {% if not message.is_read %}text-white{% else %}text-secondary{% endif %}">
+                                                {{ message.subject }}
+                                            </h6>
+                                            <p class="text-muted small mb-0">{{ message.content[:60] }}...</p>
+                                            {% if message.attachment_path %}
+                                                <small class="text-info">
+                                                    <i class="fas fa-paperclip"></i> Attachment
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No messages</h5>
+                                <p class="text-secondary small">Your inbox is empty</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Sent -->
+                    <div class="tab-pane fade" id="sent">
+                        {% if sent_messages %}
+                            <div class="messages-list" style="max-height: 60vh; overflow-y: auto;">
+                                {% for message in sent_messages %}
+                                <div class="message-item" 
+                                     onclick="loadMessage({{ message.id }}, 'sent')"
+                                     data-message-id="{{ message.id }}"
+                                     data-subject="{{ message.subject.lower() }}"
+                                     data-recipient="{{ message.recipient.get_full_name().lower() }}">
+                                    <div class="d-flex align-items-start">
+                                        {% if message.recipient.profile_image %}
+                                            <img src="{{ url_for('main.uploaded_file', filename=message.recipient.profile_image) }}" 
+                                                 class="rounded-circle me-3" width="40" height="40">
+                                        {% else %}
+                                            <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <strong class="text-info">{{ message.recipient.get_full_name() }}</strong>
+                                                <small class="text-muted">{{ message.sent_at.strftime('%m/%d %H:%M') }}</small>
+                                            </div>
+                                            <h6 class="mb-1 text-secondary">{{ message.subject }}</h6>
+                                            <p class="text-muted small mb-0">{{ message.content[:60] }}...</p>
+                                            {% if message.attachment_path %}
+                                                <small class="text-info">
+                                                    <i class="fas fa-paperclip"></i> Attachment
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-paper-plane fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No sent messages</h5>
+                                <p class="text-secondary small">Messages you send will appear here</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message View -->
+        <div class="col-lg-8">
+            <div class="glass-card" id="messageView">
+                <div class="text-center py-5" id="defaultView">
+                    <i class="fas fa-envelope-open fa-4x text-muted mb-4"></i>
+                    <h3 class="text-muted mb-3">Select a message</h3>
+                    <p class="text-secondary">Choose a message from the list to view its contents</p>
+                </div>
+
+                <div id="messageContent" style="display: none;">
+                    <!-- Message content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compose Message Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title text-gradient">
+                    <i class="fas fa-edit"></i> Compose Message
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.send_message') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% if current_user.role.value == 'admin' %}
+                    <div class="mb-3">
+                        <label for="recipient_id" class="form-label-futuristic">Recipient</label>
+                        <select class="form-control form-control-futuristic" id="recipient_id" name="recipient_id" required>
+                            <option value="">Select recipient</option>
+                            <!-- In real implementation, populate with users -->
+                        </select>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <label class="form-label-futuristic">Recipient</label>
+                        <div class="glass-card p-2">
+                            <i class="fas fa-user-tie text-primary me-2"></i>
+                            <strong>Admin - Mazin Yahia</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="subject" class="form-label-futuristic">Subject</label>
+                        <input type="text" class="form-control form-control-futuristic" 
+                               id="subject" name="subject" required 
+                               placeholder="Enter message subject">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label-futuristic">Message</label>
+                        <textarea class="form-control form-control-futuristic" 
+                                  id="content" name="content" rows="6" required
+                                  placeholder="Type your message here..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="attachment" class="form-label-futuristic">Attachment (Optional)</label>
+                        <input type="file" class="form-control form-control-futuristic" 
+                               id="attachment" name="attachment" 
+                               accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.zip">
+                        <small class="text-muted">Max file size: 10MB</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-outline-futuristic" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-futuristic">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.text-gradient {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.message-item {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+}
+
+.message-item:hover {
+    background: rgba(0, 255, 136, 0.05);
+    transform: translateX(5px);
+}
+
+.message-item.unread {
+    background: rgba(0, 255, 136, 0.1);
+    border-left: 4px solid var(--primary-green);
+}
+
+.message-item.active {
+    background: rgba(0, 153, 255, 0.1);
+    border-left: 4px solid var(--primary-blue);
+}
+
+.nav-pills .nav-link {
+    background: none;
+    color: var(--text-secondary);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+    color: white;
+}
+
+.nav-pills .nav-link:hover {
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--text-primary);
+}
+
+.messages-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-green) transparent;
+}
+
+.messages-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.messages-list::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 10px;
+}
+
+.message-content-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.message-attachment {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentMessageId = null;
+let currentMessageType = null;
+
+function showComposeModal() {
+    const modal = new bootstrap.Modal(document.getElementById('composeModal'));
+    modal.show();
+}
+
+function searchMessages(query) {
+    const messageItems = document.querySelectorAll('.message-item');
+    const searchTerm = query.toLowerCase();
+    
+    messageItems.forEach(item => {
+        const subject = item.dataset.subject || '';
+        const sender = item.dataset.sender || '';
+        const recipient = item.dataset.recipient || '';
+        
+        if (subject.includes(searchTerm) || sender.includes(searchTerm) || recipient.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function loadMessage(messageId, type) {
+    // Remove active class from all message items
+    document.querySelectorAll('.message-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to clicked item
+    const clickedItem = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (clickedItem) {
+        clickedItem.classList.add('active');
+        
+        // Mark as read if it's an unread received message
+        if (type === 'received' && clickedItem.classList.contains('unread')) {
+            markMessageAsRead(messageId);
+            clickedItem.classList.remove('unread');
+        }
+    }
+    
+    currentMessageId = messageId;
+    currentMessageType = type;
+    
+    // Hide default view and show message content
+    document.getElementById('defaultView').style.display = 'none';
+    document.getElementById('messageContent').style.display = 'block';
+    
+    // Mock message data - in real implementation, fetch from server
+    const messageData = {
+        id: messageId,
+        subject: "Project Update Required",
+        content: "Hello! I hope this message finds you well. I wanted to reach out regarding the current project status and discuss some important updates that need to be implemented. Please review the attached documents and let me know your thoughts on the proposed changes.",
+        sender: "Mazin Yahia",
+        recipient: "John Doe",
+        sent_at: "2025-01-15 14:30",
+        attachment: type === 'received' ? "project_requirements.pdf" : null
+    };
+    
+    const messageContent = document.getElementById('messageContent');
+    messageContent.innerHTML = `
+        <div class="message-content-header">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h4 class="text-gradient mb-0">${messageData.subject}</h4>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-futuristic btn-sm" onclick="replyToMessage()">
+                        <i class="fas fa-reply"></i> Reply
+                    </button>
+                    <button class="btn btn-outline-futuristic btn-sm" onclick="forwardMessage()">
+                        <i class="fas fa-forward"></i> Forward
+                    </button>
+                    <button class="btn btn-outline-futuristic btn-sm" onclick="deleteMessage()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <div class="d-flex align-items-center mb-2">
+                <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                     style="width: 40px; height: 40px;">
+                    <i class="fas fa-user text-white"></i>
+                </div>
+                <div>
+                    <strong class="text-primary">${type === 'received' ? messageData.sender : messageData.recipient}</strong>
+                    <small class="d-block text-muted">${type === 'received' ? 'to me' : 'from me'} • ${messageData.sent_at}</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="message-body">
+            <p class="text-secondary mb-4">${messageData.content}</p>
+            
+            ${messageData.attachment ? `
+                <div class="message-attachment">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
+                            <div>
+                                <strong>${messageData.attachment}</strong>
+                                <small class="d-block text-muted">PDF Document • 2.3 MB</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-futuristic btn-sm">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function markMessageAsRead(messageId) {
+    fetch(`/api/mark-message-read/${messageId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update inbox count
+            const inboxTab = document.getElementById('inbox-tab');
+            const currentCount = parseInt(inboxTab.textContent.match(/\d+/)[0]);
+            inboxTab.innerHTML = `<i class="fas fa-inbox"></i> Inbox (${currentCount - 1})`;
+        }
+    })
+    .catch(error => console.error('Error marking message as read:', error));
+}
+
+function replyToMessage() {
+    if (currentMessageId) {
+        // Pre-fill compose modal with reply data
+        document.getElementById('subject').value = 'Re: Project Update Required';
+        showComposeModal();
+    }
+}
+
+function forwardMessage() {
+    if (currentMessageId) {
+        // Pre-fill compose modal with forward data
+        document.getElementById('subject').value = 'Fwd: Project Update Required';
+        showComposeModal();
+    }
+}
+
+function deleteMessage() {
+    if (currentMessageId && confirm('Are you sure you want to delete this message?')) {
+        showNotification('Message deleted successfully', 'success');
+        
+        // Remove message from list
+        const messageItem = document.querySelector(`[data-message-id="${currentMessageId}"]`);
+        if (messageItem) {
+            messageItem.remove();
+        }
+        
+        // Show default view
+        document.getElementById('defaultView').style.display = 'block';
+        document.getElementById('messageContent').style.display = 'none';
+        
+        currentMessageId = null;
+        currentMessageType = null;
+    }
+}
+
+// Auto-resize textarea in compose modal
+document.getElementById('content').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+});
+
+// Handle form submission
+document.querySelector('#composeModal form').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    
+    // Re-enable button after delay in case of errors
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }, 5000);
+});
+</script>
+{% endblock %}
