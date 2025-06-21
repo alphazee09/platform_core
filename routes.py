@@ -369,4 +369,18 @@ def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
+# API endpoints for real-time updates
+@main_bp.route('/api/unread-messages')
+@login_required
+def api_unread_messages():
+    count = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
+    return jsonify({'count': count})
+
+@main_bp.route('/api/notifications')
+@login_required
+def api_notifications():
+    # Count unread messages as notifications for now
+    count = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
+    return jsonify({'count': count})
+
 # Blueprint registration moved to main.py to avoid circular imports

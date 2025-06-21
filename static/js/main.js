@@ -27,32 +27,28 @@ function initializePlatform() {
     initializeSmoothScroll();
 }
 
-// Futuristic Cursor Effect
+// Optimized Cursor Effect
 function createCursorEffect() {
     const cursor = document.createElement('div');
     cursor.className = 'custom-cursor';
     cursor.innerHTML = '<div class="cursor-dot"></div><div class="cursor-ring"></div>';
     document.body.appendChild(cursor);
     
-    let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
+    let isMoving = false;
     
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+    // Use throttled mousemove for better performance
+    document.addEventListener('mousemove', throttle((e) => {
+        cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    }, 16)); // ~60fps
+    
+    // Add hover effects for interactive elements
+    const interactiveElements = document.querySelectorAll('a, button, [data-cursor="pointer"]');
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
     });
     
-    function animateCursor() {
-        cursorX += (mouseX - cursorX) * 0.1;
-        cursorY += (mouseY - cursorY) * 0.1;
-        
-        cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-        requestAnimationFrame(animateCursor);
-    }
-    
-    animateCursor();
-    
-    // Add CSS for cursor
+    // Add optimized CSS for cursor
     const cursorStyle = document.createElement('style');
     cursorStyle.textContent = `
         .custom-cursor {
@@ -62,6 +58,8 @@ function createCursorEffect() {
             pointer-events: none;
             z-index: 9999;
             mix-blend-mode: difference;
+            will-change: transform;
+            transform: translate(-50%, -50%);
         }
         
         .cursor-dot {
@@ -69,27 +67,31 @@ function createCursorEffect() {
             height: 8px;
             background: #00ff88;
             border-radius: 50%;
-            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
         }
         
         .cursor-ring {
             position: absolute;
-            top: -15px;
-            left: -15px;
-            width: 30px;
-            height: 30px;
+            top: -11px;
+            left: -11px;
+            width: 22px;
+            height: 22px;
             border: 2px solid rgba(0, 255, 136, 0.3);
             border-radius: 50%;
-            animation: cursorPulse 2s ease-in-out infinite;
+            transition: transform 0.2s ease;
         }
         
-        @keyframes cursorPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
+        .cursor-hover .cursor-dot {
+            transform: scale(1.5);
         }
         
-        body * {
-            cursor: none !important;
+        .cursor-hover .cursor-ring {
+            transform: scale(2);
+            border-color: rgba(0, 255, 136, 0.6);
+        }
+        
+        @media (pointer: coarse) {
+            .custom-cursor { display: none; }
         }
     `;
     document.head.appendChild(cursorStyle);
