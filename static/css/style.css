@@ -2101,11 +2101,22 @@ select.form-control-futuristic option {
   .btn-futuristic, .btn-outline-futuristic {
     padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
+    width: 100%;
+    margin-bottom: 1rem !important;
   }
   
   .btn-lg {
     padding: 1rem 2rem;
     font-size: 1rem;
+  }
+  
+  .text-center .btn {
+    display: block;
+    margin: 0 auto 1rem auto;
+  }
+  
+  .text-center .me-3 {
+    margin-right: 0 !important;
   }
 }
 

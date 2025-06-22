@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+
+{% block title %}Developer Timeline - Mazin Yahia{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Timeline Specific Styles */
+.timeline-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--dark-bg), #0a0a1a);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.timeline-header {
+  text-align: center;
+  padding: 4rem 0 2rem;
+  position: relative;
+}
+
+.timeline-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  background: linear-gradient(45deg, var(--primary-green), #00ff44, #00ccff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  animation: titleGlow 3s ease-in-out infinite;
+}
+
+.timeline-subtitle {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.timeline-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: rgba(0, 255, 136, 0.1);
+  border: 2px solid rgba(0, 255, 136, 0.3);
+  border-radius: 15px;
+  padding: 1.5rem;
+  text-align: center;
+  min-width: 150px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  animation: statFloat 3s ease-in-out infinite;
+}
+
+.stat-card:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.stat-card:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.stat-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3);
+}
+
+.stat-number {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--primary-green);
+  display: block;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.stat-label {
+  color: var(--text-light);
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* Timeline Wrapper */
+.timeline-wrapper {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Main Timeline Line */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, transparent, var(--primary-green), transparent);
+  transform: translateX(-50%);
+  animation: timelinePulse 2s ease-in-out infinite;
+}
+
+/* Timeline Items */
+.timeline-item {
+  position: relative;
+  margin-bottom: 4rem;
+  opacity: 0;
+  animation: slideInUp 0.8s ease forwards;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.2s; }
+.timeline-item:nth-child(2) { animation-delay: 0.4s; }
+.timeline-item:nth-child(3) { animation-delay: 0.6s; }
+.timeline-item:nth-child(4) { animation-delay: 0.8s; }
+.timeline-item:nth-child(5) { animation-delay: 1.0s; }
+.timeline-item:nth-child(6) { animation-delay: 1.2s; }
+.timeline-item:nth-child(7) { animation-delay: 1.4s; }
+.timeline-item:nth-child(8) { animation-delay: 1.6s; }
+.timeline-item:nth-child(9) { animation-delay: 1.8s; }
+.timeline-item:nth-child(10) { animation-delay: 2.0s; }
+.timeline-item:nth-child(11) { animation-delay: 2.2s; }
+.timeline-item:nth-child(12) { animation-delay: 2.4s; }
+
+/* Timeline Content Cards */
+.timeline-content {
+  width: 45%;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(15, 15, 35, 0.9), rgba(20, 20, 40, 0.8));
+  border: 2px solid rgba(0, 255, 136, 0.3);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  position: relative;
+  transition: all 0.4s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.timeline-content:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: var(--primary-green);
+  box-shadow: 0 20px 50px rgba(0, 255, 136, 0.2);
+}
+
+/* Alternating Layout */
+.timeline-item:nth-child(odd) .timeline-content {
+  margin-left: auto;
+}
+
+.timeline-item:nth-child(even) .timeline-content {
+  margin-right: auto;
+}
+
+/* Timeline Dots */
+.timeline-dot {
+  position: absolute;
+  left: 50%;
+  top: 2rem;
+  width: 20px;
+  height: 20px;
+  background: var(--primary-green);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.7);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+/* Year Labels */
+.timeline-year {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--primary-green);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+/* Job Information */
+.job-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.company-name {
+  font-size: 1.1rem;
+  color: #00ccff;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.job-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Technology Tags */
+.tech-tags {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tech-tag {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--primary-green);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  transition: all 0.3s ease;
+}
+
+.tech-tag:hover {
+  background: rgba(0, 255, 136, 0.3);
+  transform: scale(1.05);
+}
+
+/* Back Button */
+.back-button {
+  position: fixed;
+  top: 100px;
+  left: 2rem;
+  z-index: 1000;
+  background: linear-gradient(135deg, var(--primary-green), #00cc77);
+  color: var(--dark-bg);
+  border: none;
+  padding: 1rem;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+}
+
+.back-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
+}
+
+/* Animations */
+@keyframes titleGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+  50% { text-shadow: 0 0 40px rgba(0, 255, 136, 0.8), 0 0 60px rgba(0, 204, 255, 0.3); }
+}
+
+@keyframes statFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes timelinePulse {
+  0%, 100% { opacity: 0.5; transform: translateX(-50%) scaleX(1); }
+  50% { opacity: 1; transform: translateX(-50%) scaleX(1.5); }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% { 
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.7);
+  }
+  50% { 
+    transform: translateX(-50%) scale(1.3);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 1);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .timeline-line {
+    left: 2rem;
+  }
+  
+  .timeline-content {
+    width: calc(100% - 4rem);
+    margin-left: 4rem !important;
+    margin-right: 0 !important;
+  }
+  
+  .timeline-dot {
+    left: 2rem;
+  }
+  
+  .timeline-stats {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    min-width: 200px;
+  }
+  
+  .back-button {
+    left: 1rem;
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  
+  .timeline-year {
+    font-size: 1.4rem;
+  }
+  
+  .job-title {
+    font-size: 1.1rem;
+  }
+  
+  .company-name {
+    font-size: 1rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="timeline-container">
+  <!-- Back Button -->
+  <button class="back-button" onclick="window.history.back()">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+
+  <!-- Header Section -->
+  <div class="timeline-header">
+    <h1 class="timeline-title">Developer Journey</h1>
+    <p class="timeline-subtitle">11+ Years of Innovation & Excellence in Software Engineering</p>
+    
+    <div class="timeline-stats">
+      <div class="stat-card">
+        <span class="stat-number">11+</span>
+        <span class="stat-label">Years Experience</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">100+</span>
+        <span class="stat-label">Projects Delivered</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">15+</span>
+        <span class="stat-label">Technologies Mastered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Content -->
+  <div class="timeline-wrapper">
+    <div class="timeline-line"></div>
+    
+    <!-- 2025 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2025</div>
+        <div class="job-title">Senior Full-Stack Engineer & Platform Architect</div>
+        <div class="company-name">
+          <i class="fas fa-building"></i>
+          Independent Software Solutions
+        </div>
+        <div class="job-description">
+          Leading the development of cutting-edge software platforms with focus on scalable architecture, 
+          microservices, and modern web technologies. Specializing in full-stack development with emphasis 
+          on performance optimization and user experience.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Flask</span>
+          <span class="tech-tag">React</span>
+          <span class="tech-tag">PostgreSQL</span>
+          <span class="tech-tag">Docker</span>
+          <span class="tech-tag">AWS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2024 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2024</div>
+        <div class="job-title">Lead Software Engineer</div>
+        <div class="company-name">
+          <i class="fas fa-rocket"></i>
+          TechVantage Solutions
+        </div>
+        <div class="job-description">
+          Spearheaded the development of enterprise-level applications and led a team of 8 developers. 
+          Implemented DevOps practices and established coding standards that improved delivery time by 40%.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Node.js</span>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">MongoDB</span>
+          <span class="tech-tag">Redis</span>
+          <span class="tech-tag">Kubernetes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2023 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2023</div>
+        <div class="job-title">Senior Software Developer</div>
+        <div class="company-name">
+          <i class="fas fa-globe"></i>
+          Global Tech Innovations
+        </div>
+        <div class="job-description">
+          Developed high-performance web applications serving millions of users. Implemented microservices 
+          architecture and optimized database queries resulting in 60% performance improvement.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Java</span>
+          <span class="tech-tag">Spring Boot</span>
+          <span class="tech-tag">Angular</span>
+          <span class="tech-tag">MySQL</span>
+          <span class="tech-tag">Elasticsearch</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2022 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2022</div>
+        <div class="job-title">Full-Stack Developer</div>
+        <div class="company-name">
+          <i class="fas fa-code"></i>
+          Digital Solutions Hub
+        </div>
+        <div class="job-description">
+          Built responsive web applications and mobile solutions. Collaborated with cross-functional teams 
+          to deliver feature-rich platforms for e-commerce and fintech sectors.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Vue.js</span>
+          <span class="tech-tag">Laravel</span>
+          <span class="tech-tag">PHP</span>
+          <span class="tech-tag">PostgreSQL</span>
+          <span class="tech-tag">GraphQL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2021 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2021</div>
+        <div class="job-title">Software Engineer</div>
+        <div class="company-name">
+          <i class="fas fa-laptop-code"></i>
+          CodeCraft Technologies
+        </div>
+        <div class="job-description">
+          Focused on backend development and API design. Implemented secure authentication systems 
+          and payment gateways for various client projects.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Django</span>
+          <span class="tech-tag">REST APIs</span>
+          <span class="tech-tag">Stripe</span>
+          <span class="tech-tag">JWT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2020 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2020</div>
+        <div class="job-title">Backend Developer</div>
+        <div class="company-name">
+          <i class="fas fa-server"></i>
+          DataFlow Systems
+        </div>
+        <div class="job-description">
+          Specialized in server-side development and database optimization. Built scalable APIs 
+          and implemented real-time data processing systems.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">C#</span>
+          <span class="tech-tag">.NET Core</span>
+          <span class="tech-tag">SQL Server</span>
+          <span class="tech-tag">Azure</span>
+          <span class="tech-tag">SignalR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2019 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2019</div>
+        <div class="job-title">Web Developer</div>
+        <div class="company-name">
+          <i class="fas fa-desktop"></i>
+          WebCraft Studio
+        </div>
+        <div class="job-description">
+          Developed modern web applications with focus on user experience and performance. 
+          Worked extensively with JavaScript frameworks and responsive design principles.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">JavaScript</span>
+          <span class="tech-tag">React</span>
+          <span class="tech-tag">Express.js</span>
+          <span class="tech-tag">MongoDB</span>
+          <span class="tech-tag">Sass</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2018 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2018</div>
+        <div class="job-title">Frontend Developer</div>
+        <div class="company-name">
+          <i class="fas fa-paint-brush"></i>
+          Creative Web Solutions
+        </div>
+        <div class="job-description">
+          Focused on creating engaging user interfaces and implementing modern design patterns. 
+          Collaborated with designers to bring creative visions to life.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">HTML5</span>
+          <span class="tech-tag">CSS3</span>
+          <span class="tech-tag">jQuery</span>
+          <span class="tech-tag">Bootstrap</span>
+          <span class="tech-tag">Webpack</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2017 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2017</div>
+        <div class="job-title">Junior Web Developer</div>
+        <div class="company-name">
+          <i class="fas fa-graduation-cap"></i>
+          StartUp Innovations
+        </div>
+        <div class="job-description">
+          Gained valuable experience in web development fundamentals and agile methodologies. 
+          Contributed to various projects while expanding technical skills.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">PHP</span>
+          <span class="tech-tag">MySQL</span>
+          <span class="tech-tag">JavaScript</span>
+          <span class="tech-tag">CSS</span>
+          <span class="tech-tag">Git</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2016 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2016</div>
+        <div class="job-title">Software Development Intern</div>
+        <div class="company-name">
+          <i class="fas fa-seedling"></i>
+          TechStart Incubator
+        </div>
+        <div class="job-description">
+          Participated in intensive training program and contributed to real-world projects. 
+          Learned software development best practices and team collaboration.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">Java</span>
+          <span class="tech-tag">Spring</span>
+          <span class="tech-tag">Hibernate</span>
+          <span class="tech-tag">Oracle DB</span>
+          <span class="tech-tag">Maven</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2015 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2015</div>
+        <div class="job-title">Freelance Developer</div>
+        <div class="company-name">
+          <i class="fas fa-user-tie"></i>
+          Independent Projects
+        </div>
+        <div class="job-description">
+          Started freelance career building websites and small applications for local businesses. 
+          Developed entrepreneurial skills and client management experience.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">WordPress</span>
+          <span class="tech-tag">PHP</span>
+          <span class="tech-tag">MySQL</span>
+          <span class="tech-tag">jQuery</span>
+          <span class="tech-tag">Photoshop</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2014 -->
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2014</div>
+        <div class="job-title">Programming Enthusiast</div>
+        <div class="company-name">
+          <i class="fas fa-star"></i>
+          Journey Begins
+        </div>
+        <div class="job-description">
+          Started the journey into software development with passion for creating digital solutions. 
+          Self-taught programming fundamentals and began building first projects.
+        </div>
+        <div class="tech-tags">
+          <span class="tech-tag">HTML</span>
+          <span class="tech-tag">CSS</span>
+          <span class="tech-tag">JavaScript</span>
+          <span class="tech-tag">C++</span>
+          <span class="tech-tag">Learning</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add scroll-triggered animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+      }
+    });
+  }, observerOptions);
+
+  // Observe all timeline items
+  document.querySelectorAll('.timeline-item').forEach(item => {
+    observer.observe(item);
+  });
+
+  // Add hover effects to timeline dots
+  document.querySelectorAll('.timeline-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateX(-50%) scale(1.5)';
+      this.style.boxShadow = '0 0 30px rgba(0, 255, 136, 1)';
+    });
+    
+    dot.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateX(-50%) scale(1)';
+      this.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.7)';
+    });
+  });
+
+  // Smooth scroll for back button
+  document.querySelector('.back-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    window.history.back();
+  });
+});
+</script>
+{% endblock %}
