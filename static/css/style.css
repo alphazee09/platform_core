@@ -781,10 +781,38 @@ body {
 }
 
 /* Enhanced Footer Styling */
-.creator-credit {
+.footer-right-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.creator-credit-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: rgba(0, 255, 136, 0.05);
+  border-radius: 25px;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  transition: all 0.3s ease;
+}
+
+.creator-credit-container:hover {
+  background: rgba(0, 255, 136, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
+}
+
+.creator-text {
   font-family: 'Orbitron', monospace;
   font-weight: 500;
   letter-spacing: 1px;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
 .flag-icon {
@@ -793,24 +821,175 @@ body {
 }
 
 .flag-icon:hover {
-  transform: scale(1.2);
+  transform: scale(1.2) rotate(5deg);
   filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.6));
+}
+
+/* Enhanced Tutorial Tooltips */
+.enhanced-tutorial-tooltip {
+  position: fixed;
+  background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(0, 10, 20, 0.95));
+  border: 2px solid var(--primary-green);
+  border-radius: 15px;
+  padding: 0;
+  max-width: 300px;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+.enhanced-tutorial-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.tooltip-header {
+  background: linear-gradient(135deg, var(--primary-green), #00ff88);
+  color: var(--dark-bg);
+  padding: 12px 16px;
+  border-radius: 13px 13px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.step-indicator {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 20, 40, 0.3);
+  transition: all 0.3s ease;
+}
+
+.dot.completed {
+  background: var(--dark-bg);
+  transform: scale(1.2);
+}
+
+.dot.active {
+  background: var(--dark-bg);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.tooltip-content {
+  padding: 16px;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.tooltip-below .tooltip-arrow {
+  top: -10px;
+  left: 20px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid var(--primary-green);
+}
+
+.tooltip-above .tooltip-arrow {
+  bottom: -10px;
+  left: 20px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid var(--primary-green);
+}
+
+/* Tutorial Completion */
+.tutorial-completion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(0, 10, 20, 0.95));
+  border: 2px solid var(--primary-green);
+  border-radius: 20px;
+  padding: 0;
+  z-index: 10001;
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 255, 136, 0.4);
+}
+
+.tutorial-completion.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.completion-content {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-light);
+}
+
+.completion-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.completion-content h3 {
+  color: var(--primary-green);
+  margin-bottom: 15px;
+  font-family: 'Orbitron', monospace;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(5deg); }
 }
 
 /* Mobile footer adjustments */
 @media (max-width: 768px) {
-  .creator-credit {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
+  .footer-right-section {
+    margin-top: 20px;
   }
   
-  .creator-credit span {
-    font-size: 0.9rem;
+  .creator-credit-container {
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+  }
+  
+  .creator-text {
+    font-size: 0.85rem;
+    text-align: center;
   }
   
   .logo-enhanced {
     height: 50px !important;
+  }
+  
+  .enhanced-tutorial-tooltip {
+    max-width: 280px;
+    margin: 0 20px;
+  }
+  
+  .completion-content {
+    padding: 20px;
+  }
+  
+  .completion-content h3 {
+    font-size: 1.3rem;
   }
 }
 

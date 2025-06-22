@@ -32,8 +32,8 @@ function initializePlatform() {
     // Initialize smooth scroll
     initializeSmoothScroll();
     
-    // Hide loader after initialization
-    setTimeout(hidePageLoader, 1500);
+    // Hide loader after initialization - extended to showcase animation
+    setTimeout(hidePageLoader, 3000);
     
     // Initialize interactive features
     initializeInteractiveFeatures();
@@ -147,42 +147,145 @@ function initializeTutorial() {
     window.startTutorial = function() {
         const overlay = document.getElementById('tutorialOverlay');
         if (overlay) {
-            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
+            overlay.style.transform = 'scale(0.8)';
+            setTimeout(() => overlay.style.display = 'none', 300);
         }
         
-        // Start interactive walkthrough
+        // Enhanced interactive walkthrough with better timing
         const steps = [
-            { element: '.progress-steps', message: 'Track your progress through each step' },
-            { element: '.form-section', message: 'Fill out each section with your project details' },
-            { element: '.btn-wizard-next', message: 'Navigate between steps using these buttons' }
+            { 
+                element: '.wizard-header', 
+                message: 'Welcome! This is your project creation center with live statistics.',
+                duration: 4000 
+            },
+            { 
+                element: '.progress-steps', 
+                message: 'Follow these 5 steps to submit your project. Each step builds on the previous one.',
+                duration: 4000 
+            },
+            { 
+                element: '.interactive-form-section', 
+                message: 'Smart forms with real-time validation help ensure quality submissions.',
+                duration: 4000 
+            },
+            { 
+                element: '.form-control-futuristic', 
+                message: 'Interactive tooltips appear when you focus on fields to guide you.',
+                duration: 4000 
+            },
+            { 
+                element: '.wizard-stats', 
+                message: 'Live statistics show our platform success rate and response time.',
+                duration: 3000 
+            }
         ];
         
-        highlightElements(steps, 0);
+        highlightElementsWithAnimation(steps, 0);
     };
     
     window.skipTutorial = function() {
         const overlay = document.getElementById('tutorialOverlay');
         if (overlay) {
-            overlay.style.display = 'none';
+            overlay.style.opacity = '0';
+            overlay.style.transform = 'scale(0.8)';
+            setTimeout(() => overlay.style.display = 'none', 300);
         }
     };
 }
 
-function highlightElements(steps, index) {
-    if (index >= steps.length) return;
+function highlightElementsWithAnimation(steps, index) {
+    if (index >= steps.length) {
+        // Show completion message
+        showCompletionMessage();
+        return;
+    }
     
     const step = steps[index];
     const element = document.querySelector(step.element);
     
     if (element) {
-        element.classList.add('tutorial-highlight');
-        showTutorialTooltip(element, step.message);
+        // Smooth scroll to element
+        element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'center'
+        });
         
         setTimeout(() => {
-            element.classList.remove('tutorial-highlight');
-            highlightElements(steps, index + 1);
-        }, 3000);
+            element.classList.add('tutorial-highlight');
+            showEnhancedTutorialTooltip(element, step.message, index + 1, steps.length);
+            
+            // Trigger stat animation if highlighting stats
+            if (step.element === '.wizard-stats') {
+                animateCounters();
+            }
+            
+            setTimeout(() => {
+                element.classList.remove('tutorial-highlight');
+                hideTooltips();
+                highlightElementsWithAnimation(steps, index + 1);
+            }, step.duration || 3000);
+        }, 500);
+    } else {
+        // Skip to next if element not found
+        highlightElementsWithAnimation(steps, index + 1);
     }
+}
+
+function showEnhancedTutorialTooltip(element, message, currentStep, totalSteps) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'enhanced-tutorial-tooltip';
+    tooltip.innerHTML = `
+        <div class="tooltip-header">
+            <span class="step-indicator">Step ${currentStep} of ${totalSteps}</span>
+            <div class="progress-dots">
+                ${Array.from({length: totalSteps}, (_, i) => 
+                    `<div class="dot ${i < currentStep ? 'completed' : i === currentStep - 1 ? 'active' : ''}"></div>`
+                ).join('')}
+            </div>
+        </div>
+        <div class="tooltip-content">${message}</div>
+        <div class="tooltip-arrow"></div>
+    `;
+    
+    // Position tooltip intelligently
+    const rect = element.getBoundingClientRect();
+    const isTopHalf = rect.top < window.innerHeight / 2;
+    
+    if (isTopHalf) {
+        tooltip.style.top = (rect.bottom + 20) + 'px';
+        tooltip.classList.add('tooltip-below');
+    } else {
+        tooltip.style.top = (rect.top - 120) + 'px';
+        tooltip.classList.add('tooltip-above');
+    }
+    
+    tooltip.style.left = Math.max(20, Math.min(window.innerWidth - 320, rect.left)) + 'px';
+    
+    document.body.appendChild(tooltip);
+    
+    // Animate in
+    setTimeout(() => tooltip.classList.add('visible'), 100);
+}
+
+function showCompletionMessage() {
+    const completion = document.createElement('div');
+    completion.className = 'tutorial-completion';
+    completion.innerHTML = `
+        <div class="completion-content">
+            <div class="completion-icon">✨</div>
+            <h3>Tutorial Complete!</h3>
+            <p>You're now ready to create amazing projects. Let's get started!</p>
+            <button class="btn btn-hero-primary" onclick="this.parentElement.parentElement.remove()">
+                Begin Creating
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(completion);
+    setTimeout(() => completion.classList.add('visible'), 100);
+    setTimeout(() => completion.remove(), 5000);
 }
 
 function showTooltip(element, message) {
