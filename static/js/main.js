@@ -152,37 +152,27 @@ function initializeTutorial() {
             setTimeout(() => overlay.style.display = 'none', 300);
         }
         
-        // Enhanced interactive walkthrough synchronized with wizard steps
+        // Simple walkthrough with smooth zoom and quick tooltips
         const steps = [
             { 
                 element: '.wizard-header', 
-                message: 'Welcome! This is your project creation center with live statistics.',
-                duration: 4000,
-                wizardStep: 0
-            },
-            { 
-                element: '.wizard-stats', 
-                message: 'Live statistics show our platform success rate and response time.',
-                duration: 3000,
-                wizardStep: 0
+                message: 'Welcome to the project creation wizard',
+                duration: 2500
             },
             { 
                 element: '.progress-steps', 
-                message: 'Follow these 5 steps to submit your project. Track your progress here.',
-                duration: 4000,
-                wizardStep: 1
+                message: 'Track your progress through 5 simple steps',
+                duration: 2500
             },
             { 
                 element: '.interactive-form-section', 
-                message: 'Smart forms with real-time validation help ensure quality submissions.',
-                duration: 4000,
-                wizardStep: 1
+                message: 'Fill out the form with your project details',
+                duration: 2500
             },
             { 
-                element: '.form-control-futuristic', 
-                message: 'Interactive tooltips appear when you focus on fields to guide you.',
-                duration: 4000,
-                wizardStep: 1
+                element: '.wizard-stats', 
+                message: 'View our success statistics and response times',
+                duration: 2000
             }
         ];
         
@@ -218,12 +208,8 @@ function highlightElementsWithAnimation(steps, index) {
         });
         
         setTimeout(() => {
-            element.classList.add('tutorial-highlight');
-            
-            // Update wizard step indicator to match tutorial
-            updateWizardStepIndicator(step.wizardStep || 1);
-            
-            showEnhancedTutorialTooltip(element, step.message, index + 1, steps.length);
+            element.classList.add('tutorial-zoom');
+            showSimpleTooltip(element, step.message);
             
             // Trigger stat animation if highlighting stats
             if (step.element === '.wizard-stats') {
@@ -231,11 +217,11 @@ function highlightElementsWithAnimation(steps, index) {
             }
             
             setTimeout(() => {
-                element.classList.remove('tutorial-highlight');
+                element.classList.remove('tutorial-zoom');
                 hideTooltips();
                 highlightElementsWithAnimation(steps, index + 1);
-            }, step.duration || 3000);
-        }, 500);
+            }, step.duration || 2500);
+        }, 300);
     } else {
         // Skip to next if element not found
         highlightElementsWithAnimation(steps, index + 1);
@@ -281,37 +267,44 @@ function showEnhancedTutorialTooltip(element, message, currentStep, totalSteps) 
 function showCompletionMessage() {
     // Clean up all tutorial elements first
     hideTooltips();
-    document.querySelectorAll('.tutorial-highlight').forEach(el => {
-        el.classList.remove('tutorial-highlight');
+    document.querySelectorAll('.tutorial-zoom, .tutorial-highlight').forEach(el => {
+        el.classList.remove('tutorial-zoom', 'tutorial-highlight');
     });
     
-    const completion = document.createElement('div');
-    completion.className = 'tutorial-completion';
-    completion.innerHTML = `
-        <div class="completion-content">
-            <div class="completion-icon">✨</div>
-            <h3>Tutorial Complete!</h3>
-            <p>You're now ready to create amazing projects. Let's get started!</p>
-            <button class="btn btn-hero-primary" onclick="cleanupTutorial(); this.parentElement.parentElement.remove();">
-                Begin Creating
-            </button>
-        </div>
-    `;
+    // Simple completion message
+    showSimpleTooltip(document.querySelector('.wizard-header'), 'Tutorial complete! You can now use the wizard freely.');
     
-    document.body.appendChild(completion);
-    setTimeout(() => completion.classList.add('visible'), 100);
     setTimeout(() => {
         cleanupTutorial();
-        completion.remove();
-    }, 5000);
+    }, 2000);
 }
 
 function cleanupTutorial() {
     // Remove all tutorial-related elements
     hideTooltips();
-    document.querySelectorAll('.tutorial-highlight, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion').forEach(el => {
-        el.remove();
+    document.querySelectorAll('.tutorial-highlight, .tutorial-zoom, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion, .simple-tooltip').forEach(el => {
+        if (el.classList) {
+            el.classList.remove('tutorial-highlight', 'tutorial-zoom');
+        } else {
+            el.remove();
+        }
     });
+}
+
+function showSimpleTooltip(element, message) {
+    hideTooltips();
+    
+    const tooltip = document.createElement('div');
+    tooltip.className = 'simple-tooltip';
+    tooltip.textContent = message;
+    
+    const rect = element.getBoundingClientRect();
+    tooltip.style.position = 'fixed';
+    tooltip.style.top = (rect.bottom + 10) + 'px';
+    tooltip.style.left = Math.max(20, Math.min(window.innerWidth - 200, rect.left)) + 'px';
+    
+    document.body.appendChild(tooltip);
+    setTimeout(() => tooltip.classList.add('visible'), 50);
 }
 
 function showTooltip(element, message) {
@@ -419,7 +412,7 @@ function initializeCharacterCounters() {
 }
 
 function hideTooltips() {
-    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip').forEach(tooltip => {
+    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip, .simple-tooltip').forEach(tooltip => {
         tooltip.remove();
     });
 }
