@@ -152,32 +152,37 @@ function initializeTutorial() {
             setTimeout(() => overlay.style.display = 'none', 300);
         }
         
-        // Enhanced interactive walkthrough with better timing
+        // Enhanced interactive walkthrough synchronized with wizard steps
         const steps = [
             { 
                 element: '.wizard-header', 
                 message: 'Welcome! This is your project creation center with live statistics.',
-                duration: 4000 
-            },
-            { 
-                element: '.progress-steps', 
-                message: 'Follow these 5 steps to submit your project. Each step builds on the previous one.',
-                duration: 4000 
-            },
-            { 
-                element: '.interactive-form-section', 
-                message: 'Smart forms with real-time validation help ensure quality submissions.',
-                duration: 4000 
-            },
-            { 
-                element: '.form-control-futuristic', 
-                message: 'Interactive tooltips appear when you focus on fields to guide you.',
-                duration: 4000 
+                duration: 4000,
+                wizardStep: 0
             },
             { 
                 element: '.wizard-stats', 
                 message: 'Live statistics show our platform success rate and response time.',
-                duration: 3000 
+                duration: 3000,
+                wizardStep: 0
+            },
+            { 
+                element: '.progress-steps', 
+                message: 'Follow these 5 steps to submit your project. Track your progress here.',
+                duration: 4000,
+                wizardStep: 1
+            },
+            { 
+                element: '.interactive-form-section', 
+                message: 'Smart forms with real-time validation help ensure quality submissions.',
+                duration: 4000,
+                wizardStep: 1
+            },
+            { 
+                element: '.form-control-futuristic', 
+                message: 'Interactive tooltips appear when you focus on fields to guide you.',
+                duration: 4000,
+                wizardStep: 1
             }
         ];
         
@@ -214,6 +219,10 @@ function highlightElementsWithAnimation(steps, index) {
         
         setTimeout(() => {
             element.classList.add('tutorial-highlight');
+            
+            // Update wizard step indicator to match tutorial
+            updateWizardStepIndicator(step.wizardStep || 1);
+            
             showEnhancedTutorialTooltip(element, step.message, index + 1, steps.length);
             
             // Trigger stat animation if highlighting stats
@@ -270,6 +279,12 @@ function showEnhancedTutorialTooltip(element, message, currentStep, totalSteps) 
 }
 
 function showCompletionMessage() {
+    // Clean up all tutorial elements first
+    hideTooltips();
+    document.querySelectorAll('.tutorial-highlight').forEach(el => {
+        el.classList.remove('tutorial-highlight');
+    });
+    
     const completion = document.createElement('div');
     completion.className = 'tutorial-completion';
     completion.innerHTML = `
@@ -277,7 +292,7 @@ function showCompletionMessage() {
             <div class="completion-icon">✨</div>
             <h3>Tutorial Complete!</h3>
             <p>You're now ready to create amazing projects. Let's get started!</p>
-            <button class="btn btn-hero-primary" onclick="this.parentElement.parentElement.remove()">
+            <button class="btn btn-hero-primary" onclick="cleanupTutorial(); this.parentElement.parentElement.remove();">
                 Begin Creating
             </button>
         </div>
@@ -285,7 +300,18 @@ function showCompletionMessage() {
     
     document.body.appendChild(completion);
     setTimeout(() => completion.classList.add('visible'), 100);
-    setTimeout(() => completion.remove(), 5000);
+    setTimeout(() => {
+        cleanupTutorial();
+        completion.remove();
+    }, 5000);
+}
+
+function cleanupTutorial() {
+    // Remove all tutorial-related elements
+    hideTooltips();
+    document.querySelectorAll('.tutorial-highlight, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion').forEach(el => {
+        el.remove();
+    });
 }
 
 function showTooltip(element, message) {
@@ -393,9 +419,32 @@ function initializeCharacterCounters() {
 }
 
 function hideTooltips() {
-    document.querySelectorAll('.input-tooltip, .tutorial-tooltip').forEach(tooltip => {
+    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip').forEach(tooltip => {
         tooltip.remove();
     });
+}
+
+function updateWizardStepIndicator(stepNumber) {
+    // Update the wizard progress steps to match tutorial
+    const steps = document.querySelectorAll('.step');
+    steps.forEach((step, index) => {
+        if (index < stepNumber) {
+            step.classList.add('completed');
+            step.classList.remove('active');
+        } else if (index === stepNumber) {
+            step.classList.add('active');
+            step.classList.remove('completed');
+        } else {
+            step.classList.remove('active', 'completed');
+        }
+    });
+    
+    // Update progress bar
+    const progressFill = document.querySelector('.progress-fill');
+    if (progressFill) {
+        const percentage = (stepNumber / 5) * 100;
+        progressFill.style.width = percentage + '%';
+    }
 }
 
 // Optimized Cursor Effect
