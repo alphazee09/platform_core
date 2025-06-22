@@ -11,25 +11,35 @@
                     Welcome to the future of software development. Experience cutting-edge project management, 
                     seamless contracts, secure payments, and real-time communication in one unified platform.
                 </p>
-                <div class="d-flex gap-3 flex-wrap fade-in">
-                    <a href="{{ url_for('main.project_wizard') }}" class="btn btn-futuristic">
-                        <i class="fas fa-rocket"></i> Start Your Project
+                <div class="hero-actions fade-in">
+                    <a href="{{ url_for('main.project_wizard') }}" class="btn btn-hero-primary" id="startJourneyBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-rocket"></i> Start Your Journey
+                        </span>
+                        <div class="btn-glow"></div>
                     </a>
-                    {% if not current_user.is_authenticated %}
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-futuristic">
-                            <i class="fas fa-user-plus"></i> Join Platform
-                        </a>
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-futuristic">
-                            <i class="fas fa-dashboard"></i> Dashboard
-                        </a>
-                        <a href="{{ url_for('main.projects') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-project-diagram"></i> My Projects
-                        </a>
-                    {% endif %}
+                    
+                    <!-- Social Media Icons -->
+                    <div class="social-links mt-4">
+                        <h6 class="text-gradient mb-3">Connect With Me</h6>
+                        <div class="social-icons">
+                            <a href="https://github.com/mazinyahia" target="_blank" class="social-icon" data-tooltip="GitHub">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://linkedin.com/in/mazinyahia" target="_blank" class="social-icon" data-tooltip="LinkedIn">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="https://instagram.com/mazinyahia" target="_blank" class="social-icon" data-tooltip="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://facebook.com/mazinyahia" target="_blank" class="social-icon" data-tooltip="Facebook">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="https://twitter.com/mazinyahia" target="_blank" class="social-icon" data-tooltip="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-6">

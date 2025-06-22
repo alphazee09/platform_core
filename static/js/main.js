@@ -33,7 +33,10 @@ function initializePlatform() {
     initializeSmoothScroll();
     
     // Hide loader after initialization
-    setTimeout(hidePageLoader, 1000);
+    setTimeout(hidePageLoader, 1500);
+    
+    // Initialize interactive features
+    initializeInteractiveFeatures();
 }
 
 function showPageLoader() {
@@ -68,6 +71,193 @@ function hidePageLoader() {
         loader.style.opacity = '0';
         setTimeout(() => loader.remove(), 500);
     }
+}
+
+function initializeInteractiveFeatures() {
+    // Animate statistics counters
+    animateCounters();
+    
+    // Initialize interactive tutorial
+    initializeTutorial();
+    
+    // Add scroll-triggered animations
+    initializeScrollAnimations();
+    
+    // Initialize form interactions
+    initializeFormInteractions();
+    
+    // Initialize character counters
+    initializeCharacterCounters();
+}
+
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number');
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        let current = 0;
+        const increment = target / 50;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                counter.textContent = target;
+                clearInterval(timer);
+            } else {
+                counter.textContent = Math.floor(current);
+            }
+        }, 30);
+    });
+}
+
+function initializeTutorial() {
+    window.startTutorial = function() {
+        const overlay = document.getElementById('tutorialOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        
+        // Start interactive walkthrough
+        const steps = [
+            { element: '.progress-steps', message: 'Track your progress through each step' },
+            { element: '.form-section', message: 'Fill out each section with your project details' },
+            { element: '.btn-wizard-next', message: 'Navigate between steps using these buttons' }
+        ];
+        
+        highlightElements(steps, 0);
+    };
+    
+    window.skipTutorial = function() {
+        const overlay = document.getElementById('tutorialOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+    };
+}
+
+function highlightElements(steps, index) {
+    if (index >= steps.length) return;
+    
+    const step = steps[index];
+    const element = document.querySelector(step.element);
+    
+    if (element) {
+        element.classList.add('tutorial-highlight');
+        showTutorialTooltip(element, step.message);
+        
+        setTimeout(() => {
+            element.classList.remove('tutorial-highlight');
+            highlightElements(steps, index + 1);
+        }, 3000);
+    }
+}
+
+function showTooltip(element, message) {
+    if (!message) return;
+    
+    // Remove existing tooltips
+    hideTooltips();
+    
+    const tooltip = document.createElement('div');
+    tooltip.className = 'input-tooltip';
+    tooltip.textContent = message;
+    element.parentElement.appendChild(tooltip);
+}
+
+function showTutorialTooltip(element, message) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tutorial-tooltip';
+    tooltip.textContent = message;
+    element.appendChild(tooltip);
+    
+    setTimeout(() => tooltip.remove(), 2800);
+}
+
+function initializeScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function initializeFormInteractions() {
+    // Add focus effects to form inputs
+    const inputs = document.querySelectorAll('.form-control-futuristic');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('form-group-focused');
+            showTooltip(this, this.getAttribute('data-tooltip'));
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('form-group-focused');
+            hideTooltips();
+        });
+        
+        input.addEventListener('input', function() {
+            validateInput(this);
+        });
+    });
+}
+
+function validateInput(input) {
+    const feedback = input.parentElement.querySelector('.input-feedback');
+    const value = input.value.trim();
+    
+    if (input.hasAttribute('required') && value === '') {
+        feedback.textContent = 'This field is required';
+        feedback.className = 'input-feedback error';
+        input.classList.add('is-invalid');
+    } else if (value.length > 0) {
+        feedback.textContent = 'Looks good!';
+        feedback.className = 'input-feedback success';
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+    } else {
+        feedback.textContent = '';
+        feedback.className = 'input-feedback';
+        input.classList.remove('is-invalid', 'is-valid');
+    }
+}
+
+function initializeCharacterCounters() {
+    const textareas = document.querySelectorAll('textarea[data-tooltip]');
+    textareas.forEach(textarea => {
+        const counter = textarea.parentElement.querySelector('.char-counter');
+        if (counter) {
+            const currentSpan = counter.querySelector('.current');
+            const maxSpan = counter.querySelector('.max');
+            const maxLength = parseInt(maxSpan.textContent);
+            
+            textarea.addEventListener('input', function() {
+                const length = this.value.length;
+                currentSpan.textContent = length;
+                
+                if (length > maxLength * 0.9) {
+                    counter.classList.add('warning');
+                } else {
+                    counter.classList.remove('warning');
+                }
+                
+                if (length > maxLength) {
+                    counter.classList.add('error');
+                } else {
+                    counter.classList.remove('error');
+                }
+            });
+        }
+    });
+}
+
+function hideTooltips() {
+    document.querySelectorAll('.input-tooltip, .tutorial-tooltip').forEach(tooltip => {
+        tooltip.remove();
+    });
 }
 
 // Optimized Cursor Effect
@@ -746,9 +936,14 @@ window.addEventListener('load', function() {
     }
 });
 
+// Make showNotification globally available immediately
+window.showNotification = function(message, type = 'info', duration = 5000) {
+    console.log(`Notification: ${message}`);
+};
+
 // Export functions for global use
 window.PlatformJS = {
-    showNotification,
+    showNotification: window.showNotification,
     formatFileSize,
     debounce,
     throttle
