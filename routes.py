@@ -533,4 +533,9 @@ def latest_projects():
     featured_projects = Project.query.filter_by(status=ProjectStatus.COMPLETED).order_by(Project.updated_at.desc()).limit(6).all()
     return render_template('latest_projects.html', projects=featured_projects)
 
+@main_bp.route('/timeline')
+def timeline():
+    """Display developer timeline page"""
+    return render_template('timeline.html')
+
 # Blueprint is defined at the top as main_bp

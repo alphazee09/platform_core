@@ -12,12 +12,20 @@
                     seamless contracts, secure payments, and real-time communication in one unified platform.
                 </p>
                 <div class="hero-actions fade-in">
-                    <a href="{{ url_for('main.project_wizard') }}" class="btn btn-hero-primary" id="startJourneyBtn">
-                        <span class="btn-text">
-                            <i class="fas fa-rocket"></i> Start Your Journey
-                        </span>
-                        <div class="btn-glow"></div>
-                    </a>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+                        <a href="{{ url_for('main.timeline') }}" class="btn btn-hero-secondary">
+                            <span class="btn-text">
+                                <i class="fas fa-history"></i> Developer Timeline
+                            </span>
+                            <div class="btn-glow"></div>
+                        </a>
+                        <a href="{{ url_for('main.project_wizard') }}" class="btn btn-hero-primary" id="startJourneyBtn">
+                            <span class="btn-text">
+                                <i class="fas fa-rocket"></i> Start Your Journey
+                            </span>
+                            <div class="btn-glow"></div>
+                        </a>
+                    </div>
                     
                     <!-- Social Media Icons -->
                     <div class="social-links mt-4">

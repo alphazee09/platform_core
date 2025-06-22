@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Software Engineering Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="glass-card">
+                <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+                <h1 class="display-4 mb-3">Server Error</h1>
+                <p class="lead text-secondary mb-4">
+                    Oops! Something went wrong on our end. We're working to fix this issue.
+                </p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-futuristic">
+                        <i class="fas fa-home"></i> Go Home
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-outline-futuristic">
+                        <i class="fas fa-arrow-left"></i> Go Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
