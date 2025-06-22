@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - Software Engineering Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card animate-on-scroll">
+                <h1 class="text-gradient mb-4">Terms of Service</h1>
+                <p class="text-secondary mb-4">Last updated: {{ moment().format('MMMM DD, YYYY') }}</p>
+                
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Acceptance of Terms</h3>
+                    <p class="text-secondary mb-4">
+                        By accessing and using this software engineering platform, you accept and agree to be 
+                        bound by the terms and provision of this agreement.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Use License</h3>
+                    <p class="text-secondary mb-3">
+                        Permission is granted to temporarily use this platform for personal and commercial purposes. 
+                        This is the grant of a license, not a transfer of title, and under this license you may not:
+                    </p>
+                    <ul class="text-secondary mb-4">
+                        <li>Modify or copy the platform materials</li>
+                        <li>Use the materials for any commercial purpose without written consent</li>
+                        <li>Attempt to reverse engineer any software contained on the platform</li>
+                        <li>Remove any copyright or other proprietary notations</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Project Submissions</h3>
+                    <p class="text-secondary mb-4">
+                        When you submit a project through our platform, you grant us permission to review, 
+                        process, and respond to your submission. All project information remains confidential 
+                        and is used solely for the purpose of providing our services.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Payment Terms</h3>
+                    <p class="text-secondary mb-4">
+                        All payments are processed securely through Stripe. By making a payment, you agree to 
+                        our payment terms and Stripe's terms of service. Refunds are handled on a case-by-case 
+                        basis according to our refund policy.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">User Responsibilities</h3>
+                    <p class="text-secondary mb-3">
+                        As a user of this platform, you agree to:
+                    </p>
+                    <ul class="text-secondary mb-4">
+                        <li>Provide accurate and complete information</li>
+                        <li>Maintain the security of your account credentials</li>
+                        <li>Use the platform in compliance with all applicable laws</li>
+                        <li>Respect intellectual property rights</li>
+                        <li>Not engage in any harmful or disruptive activities</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Disclaimer</h3>
+                    <p class="text-secondary mb-4">
+                        The materials on this platform are provided on an 'as is' basis. We make no warranties, 
+                        expressed or implied, and hereby disclaim all other warranties including, without limitation, 
+                        implied warranties or conditions of merchantability, fitness for a particular purpose, 
+                        or non-infringement of intellectual property.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Limitations</h3>
+                    <p class="text-secondary mb-4">
+                        In no event shall our company or its suppliers be liable for any damages (including, 
+                        without limitation, damages for loss of data or profit, or due to business interruption) 
+                        arising out of the use or inability to use this platform.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Modifications</h3>
+                    <p class="text-secondary mb-4">
+                        We may revise these terms of service at any time without notice. By using this platform, 
+                        you are agreeing to be bound by the then current version of these terms of service.
+                    </p>
+                </div>
+
+                <div class="text-center mt-5">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-futuristic">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

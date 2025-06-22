@@ -8,8 +8,8 @@
         <div class="col-md-8 col-lg-6">
             <div class="form-futuristic animate-on-scroll">
                 <div class="text-center mb-4">
-                    <img src="{{ url_for('static', filename='images/logo.svg') }}" 
-                         alt="Mazin Yahia" height="60" class="mb-3">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" 
+                         alt="Platform Logo" height="60" class="mb-3">
                     <h2 class="text-gradient">Join the Future</h2>
                     <p class="text-secondary">Create your account and start your journey</p>
                 </div>
@@ -99,41 +99,16 @@
                         </div>
                     </div>
                     
-                    <!-- Identity Verification Section -->
-                    <div class="glass-card mt-4 mb-4">
-                        <h5 class="text-gradient mb-3">
-                            <i class="fas fa-shield-alt"></i> Identity Verification (Optional)
-                        </h5>
-                        <p class="text-secondary small mb-3">
-                            Upload your documents for enhanced security and verification status.
-                        </p>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_card" class="form-label-futuristic">ID Card/Document</label>
-                                <input type="file" class="form-control form-control-futuristic" 
-                                       id="id_card" name="id_card" 
-                                       accept=".jpg,.jpeg,.png,.pdf">
-                                <small class="text-muted">JPG, PNG, or PDF (Max 5MB)</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="signature" class="form-label-futuristic">Digital Signature</label>
-                                <input type="file" class="form-control form-control-futuristic" 
-                                       id="signature" name="signature" 
-                                       accept=".jpg,.jpeg,.png">
-                                <small class="text-muted">JPG or PNG (Max 2MB)</small>
-                            </div>
-                        </div>
-                    </div>
+
                     
                     <div class="mb-4">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="terms" required>
                             <label class="form-check-label text-secondary" for="terms">
                                 I agree to the 
-                                <a href="#" class="text-decoration-none text-gradient">Terms of Service</a> 
+                                <a href="{{ url_for('main.terms_of_service') }}" class="text-decoration-none text-gradient">Terms of Service</a> 
                                 and 
-                                <a href="#" class="text-decoration-none text-gradient">Privacy Policy</a>
+                                <a href="{{ url_for('main.privacy_policy') }}" class="text-decoration-none text-gradient">Privacy Policy</a>
                             </label>
                         </div>
                     </div>

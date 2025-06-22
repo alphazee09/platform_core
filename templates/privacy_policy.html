@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - Software Engineering Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card animate-on-scroll">
+                <h1 class="text-gradient mb-4">Privacy Policy</h1>
+                <p class="text-secondary mb-4">Last updated: {{ moment().format('MMMM DD, YYYY') }}</p>
+                
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Information We Collect</h3>
+                    <p class="text-secondary mb-3">
+                        We collect information you provide directly to us, such as when you create an account, 
+                        submit a project, or contact us for support.
+                    </p>
+                    <ul class="text-secondary mb-4">
+                        <li>Personal information (name, email address, phone number)</li>
+                        <li>Project details and requirements</li>
+                        <li>Payment information (processed securely through Stripe)</li>
+                        <li>Communication history and messages</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">How We Use Your Information</h3>
+                    <p class="text-secondary mb-3">
+                        We use the information we collect to:
+                    </p>
+                    <ul class="text-secondary mb-4">
+                        <li>Provide, maintain, and improve our services</li>
+                        <li>Process transactions and send related information</li>
+                        <li>Send technical notices and support messages</li>
+                        <li>Respond to your comments and questions</li>
+                        <li>Monitor and analyze trends and usage</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Information Sharing</h3>
+                    <p class="text-secondary mb-4">
+                        We do not sell, trade, or otherwise transfer your personal information to third parties 
+                        without your consent, except as described in this policy. We may share information with 
+                        trusted service providers who assist us in operating our platform.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Data Security</h3>
+                    <p class="text-secondary mb-4">
+                        We implement appropriate security measures to protect your personal information against 
+                        unauthorized access, alteration, disclosure, or destruction. However, no method of 
+                        transmission over the internet is 100% secure.
+                    </p>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Your Rights</h3>
+                    <p class="text-secondary mb-3">
+                        You have the right to:
+                    </p>
+                    <ul class="text-secondary mb-4">
+                        <li>Access, update, or delete your personal information</li>
+                        <li>Object to processing of your personal information</li>
+                        <li>Request data portability</li>
+                        <li>Withdraw consent at any time</li>
+                    </ul>
+                </div>
+
+                <div class="content-section">
+                    <h3 class="text-gradient mb-3">Contact Us</h3>
+                    <p class="text-secondary mb-4">
+                        If you have any questions about this Privacy Policy, please contact us through our 
+                        messaging system or support channels.
+                    </p>
+                </div>
+
+                <div class="text-center mt-5">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-futuristic">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

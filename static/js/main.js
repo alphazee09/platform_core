@@ -2,17 +2,23 @@
 
 // Initialize platform on DOM load
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize notifications first to make showNotification globally available
+    initializeNotifications();
+    
+    // Then initialize other components
     initializePlatform();
     initializeAnimations();
     initializeInteractions();
     initializeFileUploads();
-    initializeNotifications();
     initializeScrollEffects();
 });
 
 // Platform Initialization
 function initializePlatform() {
-    console.log('🚀 Mazin Yahia Platform Initialized');
+    console.log('🚀 Platform Initialized');
+    
+    // Add page loading animation
+    showPageLoader();
     
     // Add futuristic cursor effect
     createCursorEffect();
@@ -25,6 +31,43 @@ function initializePlatform() {
     
     // Initialize smooth scroll
     initializeSmoothScroll();
+    
+    // Hide loader after initialization
+    setTimeout(hidePageLoader, 1000);
+}
+
+function showPageLoader() {
+    const loader = document.createElement('div');
+    loader.className = 'page-loader';
+    loader.innerHTML = `
+        <div class="loader-content">
+            <div class="loading-spinner"></div>
+            <p class="loader-text">Initializing Platform...</p>
+        </div>
+    `;
+    loader.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #000000, #001122);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    `;
+    document.body.appendChild(loader);
+}
+
+function hidePageLoader() {
+    const loader = document.querySelector('.page-loader');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500);
+    }
 }
 
 // Optimized Cursor Effect
@@ -460,25 +503,61 @@ function formatFileSize(bytes) {
 
 // Notification System
 function initializeNotifications() {
+    // Create notification container if it doesn't exist
+    if (!document.getElementById('notification-container')) {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+        `;
+        document.body.appendChild(container);
+    }
+
+    // Define showNotification globally
     window.showNotification = function(message, type = 'info', duration = 5000) {
         const notification = document.createElement('div');
-        notification.className = `notification ${type} fade-in`;
+        notification.className = `notification notification-${type}`;
+        notification.style.cssText = `
+            background: ${type === 'success' ? 'var(--success-color)' : 
+                        type === 'error' ? 'var(--error-color)' : 
+                        type === 'warning' ? 'var(--warning-color)' : 'var(--info-color)'};
+            color: var(--dark-bg);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: slideInRight 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+        `;
+        
         notification.innerHTML = `
             <div style="display: flex; align-items: center; gap: 10px;">
                 <i class="fas fa-${getNotificationIcon(type)}"></i>
                 <span>${message}</span>
-                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: inherit; margin-left: auto; cursor: pointer;">
-                    <i class="fas fa-times"></i>
-                </button>
             </div>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: inherit; cursor: pointer; padding: 0; margin-left: 10px;">
+                <i class="fas fa-times"></i>
+            </button>
         `;
         
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.5s ease forwards';
-            setTimeout(() => notification.remove(), 500);
-        }, duration);
+        const container = document.getElementById('notification-container');
+        if (container) {
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease forwards';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, duration);
+        }
     };
     
     // Handle flash messages
@@ -488,8 +567,10 @@ function initializeNotifications() {
                     message.classList.contains('alert-danger') ? 'error' :
                     message.classList.contains('alert-warning') ? 'warning' : 'info';
         
-        showNotification(message.textContent.trim(), type);
-        message.remove();
+        if (typeof window.showNotification === 'function') {
+            window.showNotification(message.textContent.trim(), type);
+            message.remove();
+        }
     });
 }
 

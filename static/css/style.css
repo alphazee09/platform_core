@@ -462,12 +462,39 @@ h1 {
   box-shadow: 0 0 0 0.2rem rgba(0, 255, 136, 0.25) !important;
 }
 
+/* Smooth scrolling performance */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Fix scroll performance issues */
+* {
+  will-change: auto;
+}
+
+.navbar {
+  will-change: background-color, backdrop-filter;
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.animate-on-scroll {
+  will-change: transform, opacity;
+}
+
 /* Enhanced Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
   }
 }
 
@@ -484,6 +511,107 @@ h1 {
   .project-card:hover {
     transform: none !important;
   }
+}
+
+/* Notification Styles */
+.notification {
+  position: relative;
+  max-width: 400px;
+  word-wrap: break-word;
+  font-family: 'Orbitron', monospace;
+}
+
+.notification-success {
+  background: linear-gradient(135deg, var(--success-color), #45a049) !important;
+}
+
+.notification-error {
+  background: linear-gradient(135deg, var(--error-color), #cc0000) !important;
+}
+
+.notification-warning {
+  background: linear-gradient(135deg, var(--warning-color), #ff8c00) !important;
+}
+
+.notification-info {
+  background: linear-gradient(135deg, var(--info-color), #0066cc) !important;
+}
+
+#notification-container {
+  z-index: 10000;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-green);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Better form validation */
+.form-control:invalid {
+  border-color: var(--error-color);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control:valid {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Page Loader */
+.page-loader {
+  font-family: 'Orbitron', monospace;
+}
+
+.loader-content {
+  text-align: center;
+  color: var(--primary-green);
+}
+
+.loader-text {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Enhanced animations */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+}
+
+.animate-on-scroll.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fix scroll jank */
+.hero-section {
+  will-change: transform;
+}
+
+.particle-background {
+  will-change: transform;
+}
+
+/* Improved button hover effects without jank */
+.btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
 }
 
 /* Forms */
