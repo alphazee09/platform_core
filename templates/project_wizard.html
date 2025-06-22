@@ -6,13 +6,39 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Interactive Tutorial Overlay -->
-            <div id="tutorialOverlay" class="tutorial-overlay">
-                <div class="tutorial-content">
-                    <h3 class="text-gradient">Welcome to the Project Wizard!</h3>
-                    <p>Let me guide you through submitting your project step by step.</p>
-                    <button class="btn btn-futuristic" onclick="startTutorial()">Start Tutorial</button>
-                    <button class="btn btn-outline-secondary ms-2" onclick="skipTutorial()">Skip</button>
+            <!-- Enhanced Tutorial Overlay -->
+            <div id="tutorialOverlay" class="tutorial-overlay-enhanced">
+                <div class="tutorial-content-enhanced">
+                    <div class="tutorial-icon">
+                        <i class="fas fa-magic sparkle-animation"></i>
+                    </div>
+                    <h2 class="tutorial-title">Welcome to the Project Wizard!</h2>
+                    <p class="tutorial-description">
+                        Transform your vision into reality with our intelligent project creation system. 
+                        I'll guide you through each step to ensure perfect project setup.
+                    </p>
+                    <div class="tutorial-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Interactive Step-by-Step Guidance</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Smart Recommendations</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-rocket"></i>
+                            <span>Instant Project Setup</span>
+                        </div>
+                    </div>
+                    <div class="tutorial-actions">
+                        <button class="btn btn-futuristic btn-lg" onclick="startTutorial()">
+                            <i class="fas fa-play me-2"></i>Start Guided Tour
+                        </button>
+                        <button class="btn btn-outline-light ms-3" onclick="skipTutorial()">
+                            <i class="fas fa-forward me-2"></i>Skip & Continue
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -157,67 +183,135 @@
                         <label for="preferred_technologies">Preferred Technologies</label>
                         <div class="tech-selector">
                             <div class="tech-category">
-                                <h4>Frontend</h4>
+                                <h4><i class="fas fa-paint-brush"></i> Frontend</h4>
                                 <div class="tech-options">
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="react">
+                                        <i class="fab fa-react tech-icon"></i>
                                         <span>React</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="vue">
+                                        <i class="fab fa-vuejs tech-icon"></i>
                                         <span>Vue.js</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="angular">
+                                        <i class="fab fa-angular tech-icon"></i>
                                         <span>Angular</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="vanilla">
+                                        <i class="fab fa-js-square tech-icon"></i>
                                         <span>Vanilla JS</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="html5">
+                                        <i class="fab fa-html5 tech-icon"></i>
+                                        <span>HTML5</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="css3">
+                                        <i class="fab fa-css3-alt tech-icon"></i>
+                                        <span>CSS3</span>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="tech-category">
-                                <h4>Backend</h4>
+                                <h4><i class="fas fa-server"></i> Backend</h4>
                                 <div class="tech-options">
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="python">
+                                        <i class="fab fa-python tech-icon"></i>
                                         <span>Python</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="nodejs">
+                                        <i class="fab fa-node-js tech-icon"></i>
                                         <span>Node.js</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="php">
+                                        <i class="fab fa-php tech-icon"></i>
                                         <span>PHP</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="java">
+                                        <i class="fab fa-java tech-icon"></i>
                                         <span>Java</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="laravel">
+                                        <i class="fab fa-laravel tech-icon"></i>
+                                        <span>Laravel</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="technologies" value="golang">
+                                        <i class="fab fa-golang tech-icon"></i>
+                                        <span>Go</span>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="tech-category">
-                                <h4>Database</h4>
+                                <h4><i class="fas fa-database"></i> Database</h4>
                                 <div class="tech-options">
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="postgresql">
+                                        <i class="fas fa-database tech-icon" style="color: #336791;"></i>
                                         <span>PostgreSQL</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="mysql">
+                                        <i class="fas fa-database tech-icon" style="color: #4479A1;"></i>
                                         <span>MySQL</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="mongodb">
+                                        <i class="fas fa-leaf tech-icon" style="color: #47A248;"></i>
                                         <span>MongoDB</span>
                                     </label>
                                     <label class="tech-option">
                                         <input type="checkbox" name="technologies" value="redis">
+                                        <i class="fas fa-fire tech-icon" style="color: #DC382D;"></i>
                                         <span>Redis</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="tech-category">
+                                <h4><i class="fas fa-mobile-alt"></i> Target Platforms</h4>
+                                <div class="tech-options">
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="platforms" value="web">
+                                        <i class="fas fa-globe tech-icon"></i>
+                                        <span>Web Browser</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="platforms" value="ios">
+                                        <i class="fab fa-apple tech-icon"></i>
+                                        <span>iOS</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="platforms" value="android">
+                                        <i class="fab fa-android tech-icon"></i>
+                                        <span>Android</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="platforms" value="windows">
+                                        <i class="fab fa-windows tech-icon"></i>
+                                        <span>Windows</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="platforms" value="macos">
+                                        <i class="fab fa-apple tech-icon"></i>
+                                        <span>macOS</span>
+                                    </label>
+                                    <label class="tech-option">
+                                        <input type="checkbox" name="platforms" value="linux">
+                                        <i class="fab fa-linux tech-icon"></i>
+                                        <span>Linux</span>
                                     </label>
                                 </div>
                             </div>
@@ -232,7 +326,9 @@
                             </div>
                             <div class="add-feature">
                                 <input type="text" id="new-feature" placeholder="Add a feature...">
-                                <button type="button" id="add-feature-btn">Add Feature</button>
+                                <button type="button" id="add-feature-btn" class="btn-add-item">
+                                    <i class="fas fa-plus"></i> Add Feature
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -324,7 +420,9 @@
                             <div class="add-milestone">
                                 <input type="text" id="new-milestone" placeholder="Add a milestone...">
                                 <input type="number" id="milestone-percentage" placeholder="%" min="1" max="100">
-                                <button type="button" id="add-milestone-btn">Add Milestone</button>
+                                <button type="button" id="add-milestone-btn" class="btn-add-item">
+                                    <i class="fas fa-flag"></i> Add Milestone
+                                </button>
                             </div>
                         </div>
                     </div>

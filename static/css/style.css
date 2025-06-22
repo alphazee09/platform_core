@@ -1602,6 +1602,264 @@ select.form-control-futuristic option {
   padding: 10px;
 }
 
+/* Enhanced Tutorial Overlay */
+.tutorial-overlay-enhanced {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(10, 10, 30, 0.95));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(15px);
+}
+
+.tutorial-content-enhanced {
+  background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(20, 20, 40, 0.9));
+  padding: 3rem;
+  border-radius: 20px;
+  border: 3px solid var(--primary-green);
+  text-align: center;
+  max-width: 600px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 255, 136, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.tutorial-content-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+
+.tutorial-icon {
+  font-size: 3rem;
+  color: var(--primary-green);
+  margin-bottom: 1rem;
+}
+
+.tutorial-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, var(--primary-green), #00ff44);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+.tutorial-description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.tutorial-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.feature-item i {
+  color: var(--primary-green);
+  font-size: 1.2rem;
+}
+
+.tutorial-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Enhanced Progress Steps with Blinking */
+.wizard-progress {
+  margin-bottom: 2rem;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(0, 255, 136, 0.2));
+  z-index: 1;
+  border-radius: 2px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  background: var(--card-bg);
+  padding: 1rem 0.5rem;
+  border-radius: 12px;
+  transition: all 0.4s ease;
+  border: 2px solid transparent;
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.4s ease;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.step-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+  transition: all 0.4s ease;
+  font-weight: 500;
+}
+
+.step.active {
+  border-color: var(--primary-green);
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.step.active .step-number {
+  background: var(--primary-green);
+  color: var(--dark-bg);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+  border-color: var(--primary-green);
+  animation: activeStepPulse 2s infinite;
+}
+
+.step.active .step-label {
+  color: var(--primary-green);
+  font-weight: 600;
+  animation: labelGlow 2s infinite;
+}
+
+.step.completed .step-number {
+  background: var(--success-color);
+  color: var(--dark-bg);
+  border-color: var(--success-color);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.step.completed .step-label {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.step.completed .step-number::after {
+  content: '✓';
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Technology Icons */
+.tech-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  color: var(--primary-green);
+}
+
+.tech-option {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border: 2px solid rgba(0, 255, 136, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 255, 136, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
+}
+
+.tech-option:hover {
+  border-color: var(--primary-green);
+  background: rgba(0, 255, 136, 0.1);
+  transform: translateY(-2px);
+}
+
+.tech-option input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.tech-option input[type="checkbox"]:checked + .tech-icon + span,
+.tech-option input[type="checkbox"]:checked ~ span {
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+.tech-category h4 {
+  color: var(--primary-green);
+  font-family: 'Orbitron', monospace;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Add Item Buttons */
+.btn-add-item {
+  background: linear-gradient(135deg, var(--primary-green), #00cc77);
+  color: var(--dark-bg);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.btn-add-item:hover {
+  background: linear-gradient(135deg, #00cc77, var(--primary-green));
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+
+.btn-add-item i {
+  font-size: 1rem;
+}
+
 /* Disable all mouse movement effects in wizard */
 .wizard-container, .wizard-container *, 
 .interactive-form-section, .interactive-form-section *,
@@ -1630,6 +1888,34 @@ select.form-control-futuristic option {
   border: 1px solid rgba(0, 255, 136, 0.3);
   border-radius: 8px;
   background: rgba(0, 255, 136, 0.05);
+}
+
+@keyframes activeStepPulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes labelGlow {
+  0%, 100% { text-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+  50% { text-shadow: 0 0 15px rgba(0, 255, 136, 0.8); }
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes sparkle-animation {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.1); }
 }
 
 /* Mobile enhancements for forms */
