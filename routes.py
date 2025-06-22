@@ -101,7 +101,7 @@ def submit_project_wizard():
             
             # Create new user
             user = User()
-            user.username = client_email.split('@')[0]
+            user.username = client_email.split('@')[0] if client_email and '@' in client_email else (client_email or 'user')
             user.email = client_email
             user.first_name = client_name.split(' ')[0] if client_name else ''
             user.last_name = ' '.join(client_name.split(' ')[1:]) if client_name and len(client_name.split(' ')) > 1 else ''
@@ -124,21 +124,22 @@ def submit_project_wizard():
             'discuss': None
         }
         
-        budget = budget_mapping.get(budget_range)
+        budget = budget_mapping.get(budget_range or 'discuss', None)
         deadline_date = None
         if deadline:
             from datetime import datetime
             deadline_date = datetime.strptime(deadline, '%Y-%m-%d')
         
         # Create new project
-        new_project = Project()
-        new_project.title = title
-        new_project.description = description
-        new_project.project_type = project_type
-        new_project.budget = budget
-        new_project.deadline = deadline_date
-        new_project.client_id = user.id
-        new_project.status = ProjectStatus.PENDING
+        new_project = Project(
+            title=title,
+            description=description,
+            project_type=project_type,
+            budget=budget,
+            deadline=deadline_date,
+            client_id=user.id,
+            status=ProjectStatus.PENDING
+        )
         
         db.session.add(new_project)
         db.session.commit()
@@ -152,13 +153,14 @@ def submit_project_wizard():
                 file.save(file_path)
                 
                 # Create file record
-                project_file = ProjectFile()
-                project_file.filename = filename
-                project_file.original_filename = file.filename
-                project_file.file_path = file_path
-                project_file.file_size = os.path.getsize(file_path)
-                project_file.mime_type = file.content_type or 'application/octet-stream'
-                project_file.project_id = new_project.id
+                project_file = ProjectFile(
+                    filename=filename,
+                    original_filename=file.filename,
+                    file_path=file_path,
+                    file_size=os.path.getsize(file_path),
+                    mime_type=file.content_type or 'application/octet-stream',
+                    project_id=new_project.id
+                )
                 
                 db.session.add(project_file)
         
@@ -179,7 +181,10 @@ def submit_project_wizard():
         
         # Append additional data to description
         import json
-        new_project.description += f"\n\n--- Additional Details ---\n{json.dumps(additional_data, indent=2)}"
+        if new_project.description:
+            new_project.description += f"\n\n--- Additional Details ---\n{json.dumps(additional_data, indent=2)}"
+        else:
+            new_project.description = f"--- Additional Details ---\n{json.dumps(additional_data, indent=2)}"
         
         db.session.commit()
         
@@ -307,7 +312,7 @@ def create_checkout_session():
         payment.stripe_session_id = checkout_session.id
         db.session.commit()
         
-        return redirect(checkout_session.url, code=303)
+        return redirect(checkout_session.url or url_for('main.payments'), code=303)
     except Exception as e:
         flash(f'Error creating payment session: {str(e)}', 'error')
         return redirect(url_for('main.payments'))
@@ -466,8 +471,9 @@ def verify_user(user_id):
 @admin_required
 def update_project_status(project_id):
     project = Project.query.get_or_404(project_id)
-    new_status = request.json.get('status')
-    progress = request.json.get('progress', project.progress)
+    data = request.get_json() or {}
+    new_status = data.get('status')
+    progress = data.get('progress', project.progress)
     
     try:
         project.status = ProjectStatus(new_status)
@@ -527,4 +533,4 @@ def latest_projects():
     featured_projects = Project.query.filter_by(status=ProjectStatus.COMPLETED).order_by(Project.updated_at.desc()).limit(6).all()
     return render_template('latest_projects.html', projects=featured_projects)
 
-# Blueprint registration moved to main.py to avoid circular imports
+# Blueprint is defined at the top as main_bp
