@@ -43,9 +43,35 @@ function showPageLoader() {
     const loader = document.createElement('div');
     loader.className = 'page-loader';
     loader.innerHTML = `
-        <div class="loader-content">
-            <div class="loading-spinner"></div>
-            <p class="loader-text">Initializing Platform...</p>
+        <div class="futuristic-loader">
+            <div class="cyber-grid">
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+            </div>
+            <div class="loader-core">
+                <div class="core-ring ring-1"></div>
+                <div class="core-ring ring-2"></div>
+                <div class="core-ring ring-3"></div>
+                <div class="core-center">
+                    <div class="pulse-dot"></div>
+                </div>
+            </div>
+            <div class="data-stream">
+                <div class="stream-line"></div>
+                <div class="stream-line"></div>
+                <div class="stream-line"></div>
+            </div>
+            <div class="loader-text-futuristic">
+                <span class="text-glitch">INITIALIZING</span>
+                <div class="progress-bar-futuristic">
+                    <div class="progress-fill-futuristic"></div>
+                </div>
+                <span class="loading-dots">
+                    <span>.</span><span>.</span><span>.</span>
+                </span>
+            </div>
         </div>
     `;
     loader.style.cssText = `
@@ -54,15 +80,24 @@ function showPageLoader() {
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #000000, #001122);
+        background: radial-gradient(circle at center, #001122, #000000);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 9999;
         opacity: 1;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.8s ease;
+        overflow: hidden;
     `;
     document.body.appendChild(loader);
+    
+    // Animate progress bar
+    setTimeout(() => {
+        const progressBar = loader.querySelector('.progress-fill-futuristic');
+        if (progressBar) {
+            progressBar.style.width = '100%';
+        }
+    }, 200);
 }
 
 function hidePageLoader() {
