@@ -1281,6 +1281,56 @@ body {
   transform: translateY(0) scale(1);
 }
 
+/* Sequential Tutorial Tooltips */
+.sequential-tooltip {
+  background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(0, 10, 20, 0.95));
+  border: 2px solid var(--primary-green);
+  border-radius: 12px;
+  padding: 15px;
+  font-family: 'Orbitron', monospace;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(-20px) scale(0.9);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.sequential-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.tooltip-step {
+  color: var(--primary-green);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.tooltip-message {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.tooltip-progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tooltip-progress .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-green), #00ff88);
+  transition: width 0.5s ease;
+  border-radius: 2px;
+}
+
 .tutorial-tooltip {
   position: absolute;
   top: -50px;

@@ -152,27 +152,31 @@ function initializeTutorial() {
             setTimeout(() => overlay.style.display = 'none', 300);
         }
         
-        // Simple walkthrough with smooth zoom and quick tooltips
+        // Sequential left-to-right walkthrough
         const steps = [
             { 
                 element: '.wizard-header', 
-                message: 'Welcome to the project creation wizard',
-                duration: 2500
-            },
-            { 
-                element: '.progress-steps', 
-                message: 'Track your progress through 5 simple steps',
-                duration: 2500
-            },
-            { 
-                element: '.interactive-form-section', 
-                message: 'Fill out the form with your project details',
-                duration: 2500
+                message: 'Welcome! Start your project creation here',
+                duration: 2500,
+                position: 'center'
             },
             { 
                 element: '.wizard-stats', 
-                message: 'View our success statistics and response times',
-                duration: 2000
+                message: 'Check our platform statistics',
+                duration: 2000,
+                position: 'left'
+            },
+            { 
+                element: '.progress-steps', 
+                message: 'Follow these 5 steps in order',
+                duration: 2500,
+                position: 'center'
+            },
+            { 
+                element: '.interactive-form-section', 
+                message: 'Complete this form step by step',
+                duration: 2500,
+                position: 'right'
             }
         ];
         
@@ -202,7 +206,7 @@ function highlightElementsWithAnimation(steps, index) {
     if (element) {
         // Gentle highlight without scrolling
         element.classList.add('tutorial-zoom');
-        showAlignedTooltip(element, step.message);
+        showSequentialTooltip(element, step.message, step.position, index + 1, steps.length);
         
         // Trigger stat animation if highlighting stats
         if (step.element === '.wizard-stats') {
@@ -274,7 +278,7 @@ function showCompletionMessage() {
 function cleanupTutorial() {
     // Remove all tutorial-related elements
     hideTooltips();
-    document.querySelectorAll('.tutorial-highlight, .tutorial-zoom, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion, .simple-tooltip, .aligned-tooltip').forEach(el => {
+    document.querySelectorAll('.tutorial-highlight, .tutorial-zoom, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion, .simple-tooltip, .aligned-tooltip, .sequential-tooltip').forEach(el => {
         if (el.classList) {
             el.classList.remove('tutorial-highlight', 'tutorial-zoom');
         } else {
@@ -283,39 +287,55 @@ function cleanupTutorial() {
     });
 }
 
-function showAlignedTooltip(element, message) {
+function showSequentialTooltip(element, message, position, stepNum, totalSteps) {
     hideTooltips();
     
     const tooltip = document.createElement('div');
-    tooltip.className = 'aligned-tooltip';
-    tooltip.textContent = message;
+    tooltip.className = 'sequential-tooltip';
+    tooltip.innerHTML = `
+        <div class="tooltip-step">Step ${stepNum} of ${totalSteps}</div>
+        <div class="tooltip-message">${message}</div>
+        <div class="tooltip-progress">
+            <div class="progress-bar" style="width: ${(stepNum / totalSteps) * 100}%"></div>
+        </div>
+    `;
     
-    const rect = element.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    const tooltipWidth = 250;
+    const tooltipHeight = 80;
     
-    // Position tooltip relative to element
-    let top, left;
+    let left, top;
     
-    // Check if there's space below the element
-    if (rect.bottom + 60 < viewportHeight) {
-        top = rect.bottom + 15;
-        tooltip.classList.add('tooltip-below');
-    } else {
-        top = rect.top - 45;
-        tooltip.classList.add('tooltip-above');
+    // Position based on step sequence (left to right)
+    switch(position) {
+        case 'left':
+            left = 50;
+            break;
+        case 'center':
+            left = (viewportWidth - tooltipWidth) / 2;
+            break;
+        case 'right':
+            left = viewportWidth - tooltipWidth - 50;
+            break;
+        default:
+            left = (viewportWidth - tooltipWidth) / 2;
     }
     
-    // Center horizontally relative to element, but keep within viewport
-    const elementCenter = rect.left + (rect.width / 2);
-    left = Math.max(10, Math.min(viewportWidth - 210, elementCenter - 100));
+    // Always position at a consistent height
+    top = Math.min(150, viewportHeight * 0.2);
     
     tooltip.style.position = 'fixed';
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
+    tooltip.style.width = tooltipWidth + 'px';
     
     document.body.appendChild(tooltip);
     setTimeout(() => tooltip.classList.add('visible'), 50);
+}
+
+function showAlignedTooltip(element, message) {
+    showSequentialTooltip(element, message, 'center', 1, 1);
 }
 
 function showSimpleTooltip(element, message) {
@@ -427,7 +447,7 @@ function initializeCharacterCounters() {
 }
 
 function hideTooltips() {
-    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip, .simple-tooltip, .aligned-tooltip').forEach(tooltip => {
+    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip, .simple-tooltip, .aligned-tooltip, .sequential-tooltip').forEach(tooltip => {
         tooltip.remove();
     });
 }
