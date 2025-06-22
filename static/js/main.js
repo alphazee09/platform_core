@@ -200,28 +200,20 @@ function highlightElementsWithAnimation(steps, index) {
     const element = document.querySelector(step.element);
     
     if (element) {
-        // Smooth scroll to element
-        element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center',
-            inline: 'center'
-        });
+        // Gentle highlight without scrolling
+        element.classList.add('tutorial-zoom');
+        showAlignedTooltip(element, step.message);
+        
+        // Trigger stat animation if highlighting stats
+        if (step.element === '.wizard-stats') {
+            animateCounters();
+        }
         
         setTimeout(() => {
-            element.classList.add('tutorial-zoom');
-            showSimpleTooltip(element, step.message);
-            
-            // Trigger stat animation if highlighting stats
-            if (step.element === '.wizard-stats') {
-                animateCounters();
-            }
-            
-            setTimeout(() => {
-                element.classList.remove('tutorial-zoom');
-                hideTooltips();
-                highlightElementsWithAnimation(steps, index + 1);
-            }, step.duration || 2500);
-        }, 300);
+            element.classList.remove('tutorial-zoom');
+            hideTooltips();
+            highlightElementsWithAnimation(steps, index + 1);
+        }, step.duration || 2500);
     } else {
         // Skip to next if element not found
         highlightElementsWithAnimation(steps, index + 1);
@@ -282,7 +274,7 @@ function showCompletionMessage() {
 function cleanupTutorial() {
     // Remove all tutorial-related elements
     hideTooltips();
-    document.querySelectorAll('.tutorial-highlight, .tutorial-zoom, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion, .simple-tooltip').forEach(el => {
+    document.querySelectorAll('.tutorial-highlight, .tutorial-zoom, .tutorial-overlay, .enhanced-tutorial-tooltip, .tutorial-completion, .simple-tooltip, .aligned-tooltip').forEach(el => {
         if (el.classList) {
             el.classList.remove('tutorial-highlight', 'tutorial-zoom');
         } else {
@@ -291,20 +283,43 @@ function cleanupTutorial() {
     });
 }
 
-function showSimpleTooltip(element, message) {
+function showAlignedTooltip(element, message) {
     hideTooltips();
     
     const tooltip = document.createElement('div');
-    tooltip.className = 'simple-tooltip';
+    tooltip.className = 'aligned-tooltip';
     tooltip.textContent = message;
     
     const rect = element.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Position tooltip relative to element
+    let top, left;
+    
+    // Check if there's space below the element
+    if (rect.bottom + 60 < viewportHeight) {
+        top = rect.bottom + 15;
+        tooltip.classList.add('tooltip-below');
+    } else {
+        top = rect.top - 45;
+        tooltip.classList.add('tooltip-above');
+    }
+    
+    // Center horizontally relative to element, but keep within viewport
+    const elementCenter = rect.left + (rect.width / 2);
+    left = Math.max(10, Math.min(viewportWidth - 210, elementCenter - 100));
+    
     tooltip.style.position = 'fixed';
-    tooltip.style.top = (rect.bottom + 10) + 'px';
-    tooltip.style.left = Math.max(20, Math.min(window.innerWidth - 200, rect.left)) + 'px';
+    tooltip.style.top = top + 'px';
+    tooltip.style.left = left + 'px';
     
     document.body.appendChild(tooltip);
     setTimeout(() => tooltip.classList.add('visible'), 50);
+}
+
+function showSimpleTooltip(element, message) {
+    showAlignedTooltip(element, message);
 }
 
 function showTooltip(element, message) {
@@ -412,7 +427,7 @@ function initializeCharacterCounters() {
 }
 
 function hideTooltips() {
-    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip, .simple-tooltip').forEach(tooltip => {
+    document.querySelectorAll('.input-tooltip, .tutorial-tooltip, .enhanced-tutorial-tooltip, .simple-tooltip, .aligned-tooltip').forEach(tooltip => {
         tooltip.remove();
     });
 }

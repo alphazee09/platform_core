@@ -1226,29 +1226,59 @@ body {
 
 /* Simple tutorial zoom effect */
 .tutorial-zoom {
-  transform: scale(1.02);
-  transition: all 0.3s ease;
-  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3) !important;
-  border-radius: 10px;
-}
-
-.simple-tooltip {
-  background: var(--primary-green);
-  color: var(--dark-bg);
-  padding: 8px 12px;
+  transform: scale(1.01);
+  transition: all 0.4s ease;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.4) !important;
   border-radius: 8px;
-  font-size: 0.9rem;
-  max-width: 200px;
-  z-index: 1000;
-  opacity: 0;
-  transform: translateY(-5px);
-  transition: all 0.2s ease;
-  pointer-events: none;
+  position: relative;
+  z-index: 10;
 }
 
-.simple-tooltip.visible {
+.simple-tooltip, .aligned-tooltip {
+  background: linear-gradient(135deg, var(--primary-green), #00ff88);
+  color: var(--dark-bg);
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  max-width: 200px;
+  min-width: 150px;
+  text-align: center;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.9);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.aligned-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+}
+
+.aligned-tooltip.tooltip-below::before {
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom: 8px solid var(--primary-green);
+}
+
+.aligned-tooltip.tooltip-above::before {
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top: 8px solid #00ff88;
+}
+
+.simple-tooltip.visible, .aligned-tooltip.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .tutorial-tooltip {
