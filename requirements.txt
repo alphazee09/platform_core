@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+SQLAlchemy
+Werkzeug
+Flask-Login
+Flask-JWT-Extended
+python-dotenv
+stripe
+
