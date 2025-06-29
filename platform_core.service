@@ -1,0 +1,14 @@
+[Unit]
+Description=Gunicorn instance for platform_core
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/platform_core
+ExecStart=/usr/bin/python3 /usr/local/bin/gunicorn -w 4 -b 0.0.0.0:5000 main:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

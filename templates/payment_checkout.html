@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Checkout - Mazin Yahia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem auto;
+        max-width: 600px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .payment-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .payment-header h2 {
+        color: #00ff88;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .payment-details {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .payment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .payment-item:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #00ff88;
+    }
+    
+    .payment-form {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-control {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        color: white;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: #00ff88;
+        box-shadow: 0 0 0 0.25rem rgba(0, 255, 136, 0.25);
+        color: white;
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .btn-pay {
+        background: linear-gradient(135deg, #00ff88, #00cc6a);
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-pay:hover {
+        background: linear-gradient(135deg, #00cc6a, #00aa55);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+    }
+    
+    .security-info {
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    
+    .test-cards {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .test-card-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+    }
+    
+    .test-card-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="payment-container">
+        <div class="payment-header">
+            <h2><i class="fas fa-credit-card"></i> Secure Payment</h2>
+            <p class="text-secondary">Complete your payment securely with Thawani</p>
+        </div>
+        
+        <div class="payment-details">
+            <div class="payment-item">
+                <span>Description:</span>
+                <span id="payment-description">{{ description or 'Payment for services' }}</span>
+            </div>
+            <div class="payment-item">
+                <span>Amount:</span>
+                <span id="payment-amount">OMR {{ amount or '0.00' }}</span>
+            </div>
+            <div class="payment-item">
+                <span>Total:</span>
+                <span id="payment-total">OMR {{ amount or '0.00' }}</span>
+            </div>
+        </div>
+        
+        <div class="payment-form">
+            <form id="payment-form">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" placeholder="your@email.com" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="+968 12345678" required>
+                </div>
+                
+                <button type="submit" class="btn btn-pay">
+                    <i class="fas fa-lock"></i> Pay Securely with Thawani
+                </button>
+            </form>
+        </div>
+        
+        <div class="security-info">
+            <i class="fas fa-shield-alt text-success"></i>
+            <small>Your payment information is encrypted and secure. Powered by Thawani.</small>
+        </div>
+        
+        <div class="test-cards">
+            <h6 class="text-warning mb-2"><i class="fas fa-info-circle"></i> Test Cards (Development Mode)</h6>
+            <div class="test-card-item">
+                <span>4242 4242 4242 4242</span>
+                <span class="text-success">Always Accept</span>
+            </div>
+            <div class="test-card-item">
+                <span>4000 0000 0000 0002</span>
+                <span class="text-danger">Always Reject</span>
+            </div>
+            <div class="test-card-item">
+                <span>4456 5300 0000 1096</span>
+                <span class="text-info">3D Secure Accept</span>
+            </div>
+            <small class="text-muted">Use any future expiry date (MM/YY) and any CVV. OTP: 1234</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('payment-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    
+    // Show loading state
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    submitButton.disabled = true;
+    
+    try {
+        // Get form data
+        const formData = {
+            amount: parseFloat('{{ amount or 0 }}'),
+            description: '{{ description or "Payment for services" }}',
+            user_id: {{ current_user.id if current_user.is_authenticated else 'null' }},
+            project_id: {{ project_id or 'null' }},
+            contract_id: {{ contract_id or 'null' }},
+            milestone_id: {{ milestone_id or 'null' }},
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value
+        };
+        
+        // Create checkout session
+        const response = await fetch('/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.checkout_url) {
+            // Redirect to Thawani checkout
+            window.location.href = data.checkout_url;
+        } else {
+            throw new Error(data.error || 'Failed to create checkout session');
+        }
+        
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Payment failed: ' + error.message);
+        
+        // Reset button
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    }
+});
+</script>
+{% endblock %}
+

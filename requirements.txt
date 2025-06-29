@@ -4,6 +4,9 @@ SQLAlchemy
 Werkzeug
 Flask-Login
 Flask-JWT-Extended
+Flask-Migrate
 python-dotenv
 stripe
+requests
+gunicorn
 
