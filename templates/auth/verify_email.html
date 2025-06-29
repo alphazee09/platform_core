@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Email Verification - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="futuristic-card text-center">
+                {% if action == 'sent' %}
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <i data-feather="mail" class="text-primary" style="width: 64px; height: 64px;"></i>
+                        </div>
+                        <h2 class="futuristic-text-primary mb-3">Check Your Email</h2>
+                        <p class="text-muted mb-4">
+                            We've sent a verification link to your email address. 
+                            Please check your inbox and click the link to verify your account.
+                        </p>
+                        <div class="alert alert-info">
+                            <i data-feather="info" class="me-2"></i>
+                            <strong>Didn't receive the email?</strong> Check your spam folder or wait a few minutes.
+                        </div>
+                        <form method="POST" action="{{ url_for('auth.resend_verification') }}" class="mt-4">
+                            <div class="input-group">
+                                <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i data-feather="send" class="me-1"></i>
+                                    Resend
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% elif action == 'success' %}
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <i data-feather="check-circle" class="text-success" style="width: 64px; height: 64px;"></i>
+                        </div>
+                        <h2 class="text-success mb-3">Email Verified!</h2>
+                        <p class="text-muted mb-4">
+                            Your email has been successfully verified. You can now access all features of Platform Core.
+                        </p>
+                        <a href="{{ url_for('auth.login') }}" class="btn futuristic-btn-primary">
+                            <i data-feather="log-in" class="me-2"></i>
+                            Continue to Login
+                        </a>
+                    </div>
+                {% elif action == 'expired' %}
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <i data-feather="clock" class="text-warning" style="width: 64px; height: 64px;"></i>
+                        </div>
+                        <h2 class="text-warning mb-3">Link Expired</h2>
+                        <p class="text-muted mb-4">
+                            Your verification link has expired. Please request a new verification email.
+                        </p>
+                        <form method="POST" action="{{ url_for('auth.resend_verification') }}">
+                            <div class="input-group">
+                                <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i data-feather="send" class="me-1"></i>
+                                    Send New Link
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <i data-feather="x-circle" class="text-danger" style="width: 64px; height: 64px;"></i>
+                        </div>
+                        <h2 class="text-danger mb-3">Verification Failed</h2>
+                        <p class="text-muted mb-4">
+                            The verification link is invalid or has already been used. Please request a new verification email.
+                        </p>
+                        <form method="POST" action="{{ url_for('auth.resend_verification') }}">
+                            <div class="input-group">
+                                <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i data-feather="send" class="me-1"></i>
+                                    Send New Link
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+                
+                <div class="card-footer">
+                    <a href="{{ url_for('auth.login') }}" class="text-muted text-decoration-none">
+                        <i data-feather="arrow-left" class="me-1"></i>
+                        Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

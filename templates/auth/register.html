@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Mazen Yahia Platform{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-gradient-primary">
+    <div class="row w-100 justify-content-center">
+        <div class="col-lg-7 col-md-9 col-sm-11">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="fw-light mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Create Account
+                    </h3>
+                    <p class="mb-0 mt-2 opacity-75">Join our platform and start your journey</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.first_name(class="form-control", placeholder="First Name", required=true) }}
+                                    {{ form.first_name.label(class="form-label") }}
+                                    {% if form.first_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.first_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.last_name(class="form-control", placeholder="Last Name", required=true) }}
+                                    {{ form.last_name.label(class="form-label") }}
+                                    {% if form.last_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.last_name.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.username(class="form-control", placeholder="Username", required=true) }}
+                            {{ form.username.label(class="form-label") }}
+                            <small class="text-muted">Choose a unique username for your account</small>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.email(class="form-control", placeholder="Email", required=true) }}
+                            {{ form.email.label(class="form-label") }}
+                            <small class="text-muted">We'll send you a verification email</small>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.phone(class="form-control", placeholder="Phone Number") }}
+                                    {{ form.phone.label(class="form-label") }}
+                                    {% if form.phone.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.phone.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    {{ form.company(class="form-control", placeholder="Company (Optional)") }}
+                                    {{ form.company.label(class="form-label") }}
+                                    {% if form.company.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.company.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.password(class="form-control", placeholder="Password", required=true) }}
+                                    {{ form.password.label(class="form-label") }}
+                                    <button type="button" class="btn btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-3 border-0" 
+                                            style="z-index: 10;" onclick="togglePassword('password')">
+                                        <i class="fas fa-eye" id="passwordToggle"></i>
+                                    </button>
+                                    {% if form.password.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.password.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form.confirm_password(class="form-control", placeholder="Confirm Password", required=true) }}
+                                    {{ form.confirm_password.label(class="form-label") }}
+                                    <button type="button" class="btn btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-3 border-0" 
+                                            style="z-index: 10;" onclick="togglePassword('confirm_password')">
+                                        <i class="fas fa-eye" id="confirm_passwordToggle"></i>
+                                    </button>
+                                    {% if form.confirm_password.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.confirm_password.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Strength Indicator -->
+                        <div class="password-strength mb-3" id="passwordStrength" style="display: none;">
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted mt-1 d-block" id="passwordStrengthText">Password strength</small>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                I agree to the <a href="{{ url_for('main.terms') }}" target="_blank" class="text-decoration-none">Terms of Service</a> 
+                                and <a href="{{ url_for('main.privacy') }}" target="_blank" class="text-decoration-none">Privacy Policy</a>
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                <i class="fas fa-user-plus me-2"></i>
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3">
+                    <div class="small">
+                        Already have an account? 
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold">
+                            Sign in here
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Registration Benefits -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card bg-dark text-white border-0 h-100">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-project-diagram fa-2x mb-2 text-primary"></i>
+                            <h6 class="mb-1">Project Management</h6>
+                            <small class="opacity-75">Track and manage your projects</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-dark text-white border-0 h-100">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-credit-card fa-2x mb-2 text-success"></i>
+                            <h6 class="mb-1">Secure Payments</h6>
+                            <small class="opacity-75">Safe and secure payment processing</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-dark text-white border-0 h-100">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-comments fa-2x mb-2 text-info"></i>
+                            <h6 class="mb-1">Direct Communication</h6>
+                            <small class="opacity-75">Direct messaging with team</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-floating > .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.auth-page {
+    overflow-x: hidden;
+}
+
+.password-strength .progress-bar {
+    transition: width 0.3s ease;
+}
+</style>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const toggle = document.getElementById(fieldId + 'Toggle');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        toggle.classList.remove('fa-eye');
+        toggle.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        toggle.classList.remove('fa-eye-slash');
+        toggle.classList.add('fa-eye');
+    }
+}
+
+// Password strength checker
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const strengthIndicator = document.getElementById('passwordStrength');
+    const progressBar = strengthIndicator.querySelector('.progress-bar');
+    const strengthText = document.getElementById('passwordStrengthText');
+    
+    if (password.length === 0) {
+        strengthIndicator.style.display = 'none';
+        return;
+    }
+    
+    strengthIndicator.style.display = 'block';
+    
+    let strength = 0;
+    let strengthLabel = 'Weak';
+    let strengthColor = 'bg-danger';
+    
+    // Length check
+    if (password.length >= 8) strength += 20;
+    
+    // Uppercase check
+    if (/[A-Z]/.test(password)) strength += 20;
+    
+    // Lowercase check
+    if (/[a-z]/.test(password)) strength += 20;
+    
+    // Number check
+    if (/\d/.test(password)) strength += 20;
+    
+    // Special character check
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 20;
+    
+    if (strength >= 80) {
+        strengthLabel = 'Very Strong';
+        strengthColor = 'bg-success';
+    } else if (strength >= 60) {
+        strengthLabel = 'Strong';
+        strengthColor = 'bg-info';
+    } else if (strength >= 40) {
+        strengthLabel = 'Medium';
+        strengthColor = 'bg-warning';
+    }
+    
+    progressBar.className = `progress-bar ${strengthColor}`;
+    progressBar.style.width = strength + '%';
+    strengthText.textContent = `Password strength: ${strengthLabel}`;
+});
+
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

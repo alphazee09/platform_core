@@ -1,0 +1,556 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="futuristic-text-primary">Admin Dashboard</h1>
+            <p class="text-muted">System overview and key metrics</p>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-primary">
+                                <i data-feather="users"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Total Users</div>
+                            <div class="h4 mb-0">{{ stats.users.total }}</div>
+                            <div class="small text-success">
+                                <i data-feather="user-plus" class="me-1"></i>
+                                +{{ stats.users.new_today }} today
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-success">
+                                <i data-feather="folder"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Total Projects</div>
+                            <div class="h4 mb-0">{{ stats.projects.total }}</div>
+                            <div class="small text-warning">
+                                <i data-feather="clock" class="me-1"></i>
+                                {{ stats.projects.active }} active
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-info">
+                                <i data-feather="dollar-sign"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Total Revenue</div>
+                            <div class="h4 mb-0">${{ "%.2f"|format(stats.revenue.total) }}</div>
+                            <div class="small text-info">
+                                <i data-feather="trending-up" class="me-1"></i>
+                                ${{ "%.2f"|format(stats.revenue.monthly) }} this month
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-warning">
+                                <i data-feather="message-circle"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Messages</div>
+                            <div class="h4 mb-0">{{ stats.messages.total }}</div>
+                            <div class="small text-danger">
+                                <i data-feather="mail" class="me-1"></i>
+                                {{ stats.messages.unread }} unread
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- User Registration Trend -->
+        <div class="col-lg-8 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">User Registration Trend (Last 30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userRegistrationChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Project Status Distribution -->
+        <div class="col-lg-4 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Project Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="projectStatusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenue and Activity -->
+    <div class="row mb-4">
+        <!-- Revenue Trend -->
+        <div class="col-lg-8 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Revenue Trend (Last 30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Health -->
+        <div class="col-lg-4 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">System Health</h5>
+                </div>
+                <div class="card-body">
+                    <div class="health-metric mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>User Verification Rate</span>
+                            <span class="fw-bold">{{ "%.1f"|format(stats.users.verification_rate) }}%</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {{ stats.users.verification_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-metric mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Project Completion Rate</span>
+                            <span class="fw-bold">{{ "%.1f"|format(stats.projects.completion_rate) }}%</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-primary" style="width: {{ stats.projects.completion_rate }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-metric">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Server Uptime</span>
+                            <span class="fw-bold text-success">99.9%</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: 99.9%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Management Sections -->
+    <div class="row mb-4">
+        <!-- Recent Activities -->
+        <div class="col-lg-6 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="futuristic-text-primary mb-0">Recent Activities</h5>
+                    <a href="{{ url_for('admin.analytics') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="activity-feed">
+                            {% for activity in recent_activities %}
+                            <div class="activity-item d-flex align-items-start py-2">
+                                <div class="activity-icon me-3">
+                                    <i data-feather="activity" class="text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="activity-description">{{ activity.description }}</div>
+                                    <div class="activity-time text-muted small">
+                                        {{ activity.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="activity" class="text-muted mb-2"></i>
+                            <p class="text-muted">No recent activities</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-lg-6 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i data-feather="users" class="mb-2"></i><br>
+                                <span class="small">Manage Users</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('admin.projects') }}" class="btn btn-outline-success w-100 py-3">
+                                <i data-feather="folder" class="mb-2"></i><br>
+                                <span class="small">Manage Projects</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('admin.payments') }}" class="btn btn-outline-info w-100 py-3">
+                                <i data-feather="credit-card" class="mb-2"></i><br>
+                                <span class="small">View Payments</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('admin.messages') }}" class="btn btn-outline-warning w-100 py-3">
+                                <i data-feather="message-square" class="mb-2"></i><br>
+                                <span class="small">Messages</span>
+                                {% if stats.messages.unread > 0 %}
+                                    <span class="badge bg-danger ms-1">{{ stats.messages.unread }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('admin.blog') }}" class="btn btn-outline-secondary w-100 py-3">
+                                <i data-feather="edit" class="mb-2"></i><br>
+                                <span class="small">Manage Blog</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ url_for('admin.analytics') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i data-feather="bar-chart" class="mb-2"></i><br>
+                                <span class="small">Analytics</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Data Tables -->
+    <div class="row">
+        <!-- Recent Users -->
+        <div class="col-lg-6 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="futuristic-text-primary mb-0">Recent Users</h5>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-outline-primary">
+                        Manage All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>User</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- This would be populated with recent users data -->
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        <i data-feather="users" class="me-2"></i>
+                                        Recent users will appear here
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Projects -->
+        <div class="col-lg-6 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="futuristic-text-primary mb-0">Recent Projects</h5>
+                    <a href="{{ url_for('admin.projects') }}" class="btn btn-sm btn-outline-primary">
+                        Manage All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Client</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- This would be populated with recent projects data -->
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        <i data-feather="folder" class="me-2"></i>
+                                        Recent projects will appear here
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js configuration
+Chart.defaults.color = '#ffffff';
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+// User Registration Chart
+const userRegCtx = document.getElementById('userRegistrationChart').getContext('2d');
+const userRegistrationChart = new Chart(userRegCtx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for reg in user_registrations %}
+            '{{ reg.date.strftime("%m/%d") if reg.date else "N/A" }}'{{ "," if not loop.last }}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'New Users',
+            data: [
+                {% for reg in user_registrations %}
+                {{ reg.count or 0 }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            }
+        }
+    }
+});
+
+// Project Status Chart
+const statusCtx = document.getElementById('projectStatusChart').getContext('2d');
+const projectStatusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            {% for status, count in project_status_data %}
+            '{{ status.value.replace("_", " ").title() }}'{{ "," if not loop.last }}
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for status, count in project_status_data %}
+                {{ count }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            backgroundColor: [
+                '#28a745', // Completed
+                '#ffc107', // In Progress  
+                '#6c757d', // Pending
+                '#dc3545'  // Cancelled
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for rev in daily_revenue %}
+            '{{ rev.date.strftime("%m/%d") if rev.date else "N/A" }}'{{ "," if not loop.last }}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Daily Revenue',
+            data: [
+                {% for rev in daily_revenue %}
+                {{ rev.total or 0 }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            backgroundColor: 'rgba(102, 126, 234, 0.7)',
+            borderColor: '#667eea',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toFixed(2);
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            }
+        }
+    }
+});
+
+// Auto-refresh dashboard every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+
+// Real-time updates for unread messages
+setInterval(function() {
+    fetch('/api/unread-messages')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('.badge.bg-danger');
+            if (badge) {
+                badge.textContent = data.count;
+                if (data.count === 0) {
+                    badge.style.display = 'none';
+                } else {
+                    badge.style.display = 'inline';
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}, 30000);
+</script>
+
+<style>
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.activity-feed {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.health-metric .progress {
+    height: 6px;
+}
+
+.btn.py-3 {
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-dark th {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+</style>
+{% endblock %}

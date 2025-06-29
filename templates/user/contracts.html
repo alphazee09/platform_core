@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}Contracts - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="futuristic-text-primary">My Contracts</h1>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i data-feather="filter" class="me-2"></i>
+                        Filter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?status=all">All Status</a></li>
+                        <li><a class="dropdown-item" href="?status=draft">Draft</a></li>
+                        <li><a class="dropdown-item" href="?status=sent">Sent</a></li>
+                        <li><a class="dropdown-item" href="?status=signed">Signed</a></li>
+                        <li><a class="dropdown-item" href="?status=active">Active</a></li>
+                        <li><a class="dropdown-item" href="?status=completed">Completed</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contract Statistics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="file-text" class="text-primary mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">{{ contracts.total }}</div>
+                    <div class="text-muted">Total Contracts</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="pen-tool" class="text-warning mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {{ contracts.items | selectattr('status.value', 'equalto', 'sent') | list | length }}
+                    </div>
+                    <div class="text-muted">Awaiting Signature</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="check-circle" class="text-success mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {{ contracts.items | selectattr('status.value', 'equalto', 'signed') | list | length }}
+                    </div>
+                    <div class="text-muted">Signed</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="dollar-sign" class="text-info mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        ${{ "%.2f"|format(contracts.items | map(attribute='total_amount') | sum) }}
+                    </div>
+                    <div class="text-muted">Total Value</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contracts List -->
+    <div class="row">
+        {% if contracts.items %}
+            {% for contract in contracts.items %}
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <div class="futuristic-card contract-card h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="futuristic-text-primary mb-0">{{ contract.title }}</h6>
+                            <span class="badge bg-{{ 'success' if contract.status.value == 'signed' else 'warning' if contract.status.value == 'sent' else 'secondary' }}">
+                                {{ contract.status.value.title() }}
+                            </span>
+                        </div>
+                        <small class="text-muted">Created {{ contract.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="contract-amount mb-3">
+                            <div class="h4 futuristic-text-primary">${{ "%.2f"|format(contract.total_amount) }}</div>
+                            <small class="text-muted">Contract Value</small>
+                        </div>
+                        
+                        {% if contract.project %}
+                        <div class="mb-3">
+                            <small class="text-muted">Associated Project:</small><br>
+                            <a href="{{ url_for('user.project_detail', id=contract.project.id) }}" class="futuristic-link">
+                                {{ contract.project.title }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="contract-dates">
+                            <div class="row">
+                                {% if contract.signed_at %}
+                                <div class="col-6">
+                                    <small class="text-muted">Signed:</small><br>
+                                    <small>{{ contract.signed_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                {% endif %}
+                                {% if contract.expires_at %}
+                                <div class="col-6">
+                                    <small class="text-muted">Expires:</small><br>
+                                    <small>{{ contract.expires_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">Version {{ contract.version }}</small>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#contractModal{{ contract.id }}">
+                                    <i data-feather="eye"></i>
+                                </button>
+                                {% if contract.status.value == 'sent' %}
+                                    <button type="button" class="btn btn-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#signModal{{ contract.id }}">
+                                        <i data-feather="pen-tool"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="futuristic-card">
+                    <div class="card-body text-center py-5">
+                        <i data-feather="file-text" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                        <h4 class="text-muted">No Contracts Found</h4>
+                        <p class="text-muted">
+                            {% if status_filter != 'all' %}
+                                No contracts found with the selected filter. Try adjusting your filter criteria.
+                            {% else %}
+                                Contracts will appear here when they are created for your projects.
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('user.projects') }}" class="btn futuristic-btn-primary">
+                            <i data-feather="folder" class="me-2"></i>
+                            View Projects
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if contracts.pages > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Contract pagination">
+                <ul class="pagination justify-content-center">
+                    {% if contracts.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('user.contracts', page=contracts.prev_num, status=status_filter) }}">
+                                <i data-feather="chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in contracts.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != contracts.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('user.contracts', page=page_num, status=status_filter) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if contracts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('user.contracts', page=contracts.next_num, status=status_filter) }}">
+                                <i data-feather="chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Contract View Modals -->
+{% for contract in contracts.items %}
+<div class="modal fade" id="contractModal{{ contract.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content futuristic-card">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-text-primary">{{ contract.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="contract-content">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Contract Value:</strong> ${{ "%.2f"|format(contract.total_amount) }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{{ 'success' if contract.status.value == 'signed' else 'warning' if contract.status.value == 'sent' else 'secondary' }}">
+                                {{ contract.status.value.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if contract.project %}
+                    <div class="mb-3">
+                        <strong>Project:</strong> 
+                        <a href="{{ url_for('user.project_detail', id=contract.project.id) }}" class="futuristic-link">
+                            {{ contract.project.title }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="contract-text border rounded p-3 mb-3" style="max-height: 400px; overflow-y: auto;">
+                        {{ contract.content | nl2br }}
+                    </div>
+                    
+                    {% if contract.terms %}
+                    <div class="contract-terms">
+                        <h6 class="futuristic-text-primary">Terms & Conditions:</h6>
+                        <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                            {{ contract.terms | nl2br }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if contract.status.value == 'sent' %}
+                    <button type="button" class="btn btn-primary" 
+                            data-bs-dismiss="modal"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#signModal{{ contract.id }}">
+                        <i data-feather="pen-tool" class="me-2"></i>
+                        Sign Contract
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sign Contract Modal -->
+{% if contract.status.value == 'sent' %}
+<div class="modal fade" id="signModal{{ contract.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content futuristic-card">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-text-primary">Sign Contract</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('user.sign_contract', id=contract.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Contract: {{ contract.title }}</label>
+                        <div class="alert alert-info">
+                            <i data-feather="info" class="me-2"></i>
+                            By signing this contract, you agree to the terms and conditions outlined in the document.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="signature{{ contract.id }}" class="form-label">Digital Signature</label>
+                        <div id="signaturePad{{ contract.id }}" class="signature-pad border rounded" style="height: 200px; position: relative;">
+                            <canvas style="width: 100%; height: 100%; border-radius: 4px;"></canvas>
+                            <div class="signature-actions position-absolute top-0 end-0 p-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSignature({{ contract.id }})">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="signature" id="signature{{ contract.id }}">
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="agreeTerms{{ contract.id }}" required>
+                        <label class="form-check-label" for="agreeTerms{{ contract.id }}">
+                            I have read and agree to all terms and conditions in this contract
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success" onclick="saveSignature({{ contract.id }})">
+                        <i data-feather="check-circle" class="me-2"></i>
+                        Sign Contract
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+let signaturePads = {};
+
+// Initialize signature pads
+document.addEventListener('DOMContentLoaded', function() {
+    {% for contract in contracts.items %}
+    {% if contract.status.value == 'sent' %}
+    const canvas{{ contract.id }} = document.querySelector('#signaturePad{{ contract.id }} canvas');
+    signaturePads[{{ contract.id }}] = new SignaturePad(canvas{{ contract.id }}, {
+        backgroundColor: 'rgba(255, 255, 255, 0)',
+        penColor: 'rgb(102, 126, 234)'
+    });
+    
+    // Resize canvas
+    function resizeCanvas{{ contract.id }}() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas{{ contract.id }}.width = canvas{{ contract.id }}.offsetWidth * ratio;
+        canvas{{ contract.id }}.height = canvas{{ contract.id }}.offsetHeight * ratio;
+        canvas{{ contract.id }}.getContext("2d").scale(ratio, ratio);
+        signaturePads[{{ contract.id }}].clear();
+    }
+    
+    window.addEventListener("resize", resizeCanvas{{ contract.id }});
+    resizeCanvas{{ contract.id }}();
+    {% endif %}
+    {% endfor %}
+});
+
+function clearSignature(contractId) {
+    if (signaturePads[contractId]) {
+        signaturePads[contractId].clear();
+    }
+}
+
+function saveSignature(contractId) {
+    if (signaturePads[contractId] && !signaturePads[contractId].isEmpty()) {
+        const signatureData = signaturePads[contractId].toDataURL();
+        document.getElementById('signature' + contractId).value = signatureData;
+    } else {
+        event.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Signature Required',
+            text: 'Please provide your signature before signing the contract.',
+            background: '#1a1a2e',
+            color: '#ffffff'
+        });
+    }
+}
+
+// Contract card hover effects
+document.querySelectorAll('.contract-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+        this.style.transition = 'all 0.3s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+</script>
+
+<style>
+.signature-pad {
+    background-color: #f8f9fa;
+}
+
+.signature-pad canvas {
+    cursor: crosshair;
+}
+
+.contract-card {
+    transition: all 0.3s ease;
+}
+
+.contract-card:hover {
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+}
+</style>
+{% endblock %}

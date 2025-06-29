@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Mazen Yahia Platform{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-gradient-primary">
+    <div class="row w-100 justify-content-center">
+        <div class="col-lg-5 col-md-7 col-sm-9">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="fw-light mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Welcome Back
+                    </h3>
+                    <p class="mb-0 mt-2 opacity-75">Sign in to your account</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.username(class="form-control", placeholder="Username or Email", required=true) }}
+                            {{ form.username.label(class="form-label") }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            {{ form.password(class="form-control", placeholder="Password", required=true) }}
+                            {{ form.password.label(class="form-label") }}
+                            <button type="button" class="btn btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-3 border-0" 
+                                    style="z-index: 10;" onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="passwordToggle"></i>
+                            </button>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Sign In
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3">
+                    <div class="small">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="text-decoration-none">
+                            Forgot Password?
+                        </a>
+                        <span class="text-muted mx-2">|</span>
+                        <a href="{{ url_for('auth.register') }}" class="text-decoration-none">
+                            Need an account? Sign up!
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Demo Info -->
+            <div class="text-center mt-4">
+                <div class="card bg-dark text-white border-0">
+                    <div class="card-body py-3">
+                        <h6 class="mb-2">
+                            <i class="fas fa-rocket me-2"></i>
+                            Professional Software Engineering Platform
+                        </h6>
+                        <p class="mb-0 small opacity-75">
+                            Manage projects, payments, contracts, and communications in one place
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-floating > .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.auth-page {
+    overflow-x: hidden;
+}
+</style>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const toggle = document.getElementById(fieldId + 'Toggle');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        toggle.classList.remove('fa-eye');
+        toggle.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        toggle.classList.remove('fa-eye-slash');
+        toggle.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

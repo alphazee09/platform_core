@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}My Projects - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="futuristic-text-primary">My Projects</h1>
+                <a href="{{ url_for('main.project_wizard') }}" class="btn futuristic-btn-primary">
+                    <i data-feather="plus" class="me-2"></i>
+                    New Project
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select futuristic-input" id="status" name="status">
+                                <option value="all" {{ 'selected' if status_filter == 'all' }}>All Status</option>
+                                <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Pending</option>
+                                <option value="in_progress" {{ 'selected' if status_filter == 'in_progress' }}>In Progress</option>
+                                <option value="completed" {{ 'selected' if status_filter == 'completed' }}>Completed</option>
+                                <option value="cancelled" {{ 'selected' if status_filter == 'cancelled' }}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control futuristic-input" id="search" name="search" 
+                                   value="{{ search }}" placeholder="Search projects...">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="sort" class="form-label">Sort By</label>
+                            <select class="form-select futuristic-input" id="sort" name="sort">
+                                <option value="created_at" {{ 'selected' if sort_by == 'created_at' }}>Created Date</option>
+                                <option value="updated_at" {{ 'selected' if sort_by == 'updated_at' }}>Updated Date</option>
+                                <option value="title" {{ 'selected' if sort_by == 'title' }}>Title</option>
+                                <option value="deadline" {{ 'selected' if sort_by == 'deadline' }}>Deadline</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="order" class="form-label">Order</label>
+                            <select class="form-select futuristic-input" id="order" name="order">
+                                <option value="desc" {{ 'selected' if order == 'desc' }}>Descending</option>
+                                <option value="asc" {{ 'selected' if order == 'asc' }}>Ascending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i data-feather="search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Projects Grid -->
+    <div class="row">
+        {% if projects.items %}
+            {% for project in projects.items %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="futuristic-card project-card h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="futuristic-text-primary mb-0">{{ project.title }}</h6>
+                            <span class="badge bg-{{ 'success' if project.status.value == 'completed' else 'warning' if project.status.value == 'in_progress' else 'secondary' }}">
+                                {{ project.status.value.replace('_', ' ').title() }}
+                            </span>
+                        </div>
+                        <small class="text-muted">{{ project.project_type }}</small>
+                    </div>
+                    
+                    <div class="card-body">
+                        <p class="text-muted small">{{ project.description[:100] }}...</p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted">Progress</small>
+                                <small class="text-muted">{{ project.get_completion_percentage() }}%</small>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar" style="width: {{ project.get_completion_percentage() }}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Project Details -->
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="text-muted small">Budget</div>
+                                <div class="fw-bold small">
+                                    {% if project.budget %}
+                                        ${{ "%.0f"|format(project.budget) }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted small">Deadline</div>
+                                <div class="fw-bold small">
+                                    {% if project.deadline %}
+                                        {{ project.deadline.strftime('%m/%d/%Y') }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted small">Files</div>
+                                <div class="fw-bold small">{{ project.files|length }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Updated {{ project.updated_at.strftime('%Y-%m-%d') }}
+                            </small>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('user.project_detail', id=project.id) }}" 
+                                   class="btn btn-outline-primary">
+                                    <i data-feather="eye"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('user.follow_project', id=project.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-secondary" title="Follow Updates">
+                                        <i data-feather="bookmark"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="futuristic-card">
+                    <div class="card-body text-center py-5">
+                        <i data-feather="folder-plus" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                        <h4 class="text-muted">No Projects Found</h4>
+                        <p class="text-muted">
+                            {% if search or status_filter != 'all' %}
+                                Try adjusting your search criteria or filters.
+                            {% else %}
+                                Start your first project to see it here.
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('main.project_wizard') }}" class="btn futuristic-btn-primary">
+                            <i data-feather="plus" class="me-2"></i>
+                            Create New Project
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if projects.pages > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Project pagination">
+                <ul class="pagination justify-content-center">
+                    {% if projects.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('user.projects', page=projects.prev_num, status=status_filter, search=search, sort=sort_by, order=order) }}">
+                                <i data-feather="chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in projects.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != projects.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('user.projects', page=page_num, status=status_filter, search=search, sort=sort_by, order=order) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if projects.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('user.projects', page=projects.next_num, status=status_filter, search=search, sort=sort_by, order=order) }}">
+                                <i data-feather="chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit form on filter change
+document.querySelectorAll('#status, #sort, #order').forEach(element => {
+    element.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+
+// Project card hover effects
+document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-5px)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+</script>
+{% endblock %}

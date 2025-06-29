@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}Payment History - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="futuristic-text-primary">Payment History</h1>
+                <a href="{{ url_for('main.project_wizard') }}" class="btn futuristic-btn-primary">
+                    <i data-feather="plus" class="me-2"></i>
+                    New Payment
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Summary -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="check-circle" class="text-success mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">${{ "%.2f"|format(total_paid) }}</div>
+                    <div class="text-muted">Total Paid</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="clock" class="text-warning mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">${{ "%.2f"|format(total_pending) }}</div>
+                    <div class="text-muted">Pending</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="credit-card" class="text-primary mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">{{ payments.total }}</div>
+                    <div class="text-muted">Total Transactions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select futuristic-input" id="status" name="status">
+                                <option value="all" {{ 'selected' if status_filter == 'all' }}>All Status</option>
+                                <option value="completed" {{ 'selected' if status_filter == 'completed' }}>Completed</option>
+                                <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Pending</option>
+                                <option value="failed" {{ 'selected' if status_filter == 'failed' }}>Failed</option>
+                                <option value="refunded" {{ 'selected' if status_filter == 'refunded' }}>Refunded</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="method" class="form-label">Payment Method</label>
+                            <select class="form-select futuristic-input" id="method" name="method">
+                                <option value="all" {{ 'selected' if method_filter == 'all' }}>All Methods</option>
+                                <option value="stripe" {{ 'selected' if method_filter == 'stripe' }}>Stripe</option>
+                                <option value="thawani" {{ 'selected' if method_filter == 'thawani' }}>Thawani</option>
+                                <option value="bank_transfer" {{ 'selected' if method_filter == 'bank_transfer' }}>Bank Transfer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_from" class="form-label">From Date</label>
+                            <input type="date" class="form-control futuristic-input" id="date_from" name="date_from">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_to" class="form-label">To Date</label>
+                            <input type="date" class="form-control futuristic-input" id="date_to" name="date_to">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i data-feather="filter"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment History Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Transaction History</h5>
+                </div>
+                <div class="card-body">
+                    {% if payments.items %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="paymentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments.items %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ payment.created_at.strftime('%Y-%m-%d') }}</div>
+                                            <div class="text-muted small">{{ payment.created_at.strftime('%H:%M') }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">{{ payment.description[:50] }}...</div>
+                                            {% if payment.project %}
+                                                <div class="text-muted small">
+                                                    <i data-feather="folder" class="me-1"></i>
+                                                    {{ payment.project.title }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">${{ "%.2f"|format(payment.amount) }}</div>
+                                            <div class="text-muted small">{{ payment.currency }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-outline-primary">
+                                                {{ payment.payment_method.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if payment.status.value == 'completed' else 'warning' if payment.status.value == 'pending' else 'danger' }}">
+                                                {{ payment.status.value.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                {% if payment.status.value == 'pending' and payment.payment_method == 'thawani' and payment.thawani_session_id %}
+                                                    <a href="#" class="btn btn-outline-primary" title="Complete Payment">
+                                                        <i data-feather="credit-card"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if payment.project %}
+                                                    <a href="{{ url_for('user.project_detail', id=payment.project.id) }}" 
+                                                       class="btn btn-outline-secondary" title="View Project">
+                                                        <i data-feather="folder"></i>
+                                                    </a>
+                                                {% endif %}
+                                                <button type="button" class="btn btn-outline-info" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#paymentModal{{ payment.id }}"
+                                                        title="View Details">
+                                                    <i data-feather="eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if payments.pages > 1 %}
+                        <nav aria-label="Payment pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if payments.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('user.payments', page=payments.prev_num, status=status_filter, method=method_filter) }}">
+                                            <i data-feather="chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in payments.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != payments.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('user.payments', page=page_num, status=status_filter, method=method_filter) }}">
+                                                    {{ page_num }}
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if payments.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('user.payments', page=payments.next_num, status=status_filter, method=method_filter) }}">
+                                            <i data-feather="chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i data-feather="credit-card" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                            <h4 class="text-muted">No Payments Found</h4>
+                            <p class="text-muted">
+                                {% if status_filter != 'all' or method_filter != 'all' %}
+                                    Try adjusting your filters to see more results.
+                                {% else %}
+                                    Your payment history will appear here after making payments.
+                                {% endif %}
+                            </p>
+                            <a href="{{ url_for('main.project_wizard') }}" class="btn futuristic-btn-primary">
+                                <i data-feather="plus" class="me-2"></i>
+                                Start New Project
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Detail Modals -->
+{% for payment in payments.items %}
+<div class="modal fade" id="paymentModal{{ payment.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content futuristic-card">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-text-primary">Payment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Transaction ID:</strong><br>
+                        <span class="text-muted">{{ payment.id }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Date:</strong><br>
+                        <span class="text-muted">{{ payment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Amount:</strong><br>
+                        <span class="text-muted">${{ "%.2f"|format(payment.amount) }} {{ payment.currency }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Payment Method:</strong><br>
+                        <span class="text-muted">{{ payment.payment_method.title() }}</span>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Description:</strong><br>
+                        <span class="text-muted">{{ payment.description }}</span>
+                    </div>
+                </div>
+                {% if payment.project %}
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Associated Project:</strong><br>
+                        <a href="{{ url_for('user.project_detail', id=payment.project.id) }}" class="futuristic-link">
+                            {{ payment.project.title }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                {% if payment.stripe_payment_intent_id or payment.thawani_payment_id %}
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Gateway Reference:</strong><br>
+                        <span class="text-muted small">
+                            {{ payment.stripe_payment_intent_id or payment.thawani_payment_id }}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if payment.project %}
+                    <a href="{{ url_for('user.project_detail', id=payment.project.id) }}" class="btn btn-primary">
+                        View Project
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-submit form on filter change
+document.querySelectorAll('#status, #method').forEach(element => {
+    element.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+
+// Initialize DataTable if there are many entries
+if (document.querySelectorAll('#paymentsTable tbody tr').length > 10) {
+    $('#paymentsTable').DataTable({
+        pageLength: 25,
+        order: [[0, 'desc']],
+        columnDefs: [
+            { orderable: false, targets: [5] }
+        ]
+    });
+}
+</script>
+{% endblock %}

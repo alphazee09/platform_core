@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="futuristic-text-primary">Analytics Dashboard</h1>
+            <p class="text-muted">Track your project progress, spending, and performance metrics</p>
+        </div>
+    </div>
+    
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="trending-up" class="text-success mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">{{ project_stats | length }}</div>
+                    <div class="text-muted">Active Projects</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="dollar-sign" class="text-primary mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        ${{ "%.2f"|format(payment_stats | map(attribute='total') | sum or 0) }}
+                    </div>
+                    <div class="text-muted">Total Spent</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="calendar" class="text-warning mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {{ monthly_spending | length }}
+                    </div>
+                    <div class="text-muted">Active Months</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="activity" class="text-info mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {% set completion_rate = (status_distribution | selectattr('0.value', 'equalto', 'completed') | map(attribute='1') | sum) / (status_distribution | map(attribute='1') | sum) * 100 if status_distribution else 0 %}
+                        {{ "%.0f"|format(completion_rate) }}%
+                    </div>
+                    <div class="text-muted">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Project Timeline -->
+        <div class="col-lg-8 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Project Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="projectTimelineChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Project Status Distribution -->
+        <div class="col-lg-4 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Project Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Analytics -->
+    <div class="row mb-4">
+        <!-- Spending Trend -->
+        <div class="col-lg-8 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Spending Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="spendingChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Breakdown -->
+        <div class="col-lg-4 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Monthly Spending</h5>
+                </div>
+                <div class="card-body">
+                    {% if monthly_spending %}
+                        {% for month_data in monthly_spending %}
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <div class="fw-bold">{{ month_data.month.strftime('%B %Y') if month_data.month else 'N/A' }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="h6 mb-0">${{ "%.2f"|format(month_data.total or 0) }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="bar-chart" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <p class="text-muted">No spending data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Performance Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Average Project Duration -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="metric-card text-center p-3 border rounded">
+                                <i data-feather="clock" class="text-primary mb-2"></i>
+                                <div class="h5 mb-1">
+                                    {% set completed_projects = status_distribution | selectattr('0.value', 'equalto', 'completed') | map(attribute='1') | sum %}
+                                    {{ completed_projects or 0 }}
+                                </div>
+                                <div class="text-muted small">Completed Projects</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Average Spend per Project -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="metric-card text-center p-3 border rounded">
+                                <i data-feather="target" class="text-success mb-2"></i>
+                                <div class="h5 mb-1">
+                                    {% set total_projects = status_distribution | map(attribute='1') | sum %}
+                                    {% set total_spent = payment_stats | map(attribute='total') | sum or 0 %}
+                                    {% if total_projects > 0 %}
+                                        ${{ "%.2f"|format(total_spent / total_projects) }}
+                                    {% else %}
+                                        $0.00
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted small">Avg. Spend/Project</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Project Success Rate -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="metric-card text-center p-3 border rounded">
+                                <i data-feather="award" class="text-warning mb-2"></i>
+                                <div class="h5 mb-1">
+                                    {% set total_projects = status_distribution | map(attribute='1') | sum %}
+                                    {% set completed_projects = status_distribution | selectattr('0.value', 'equalto', 'completed') | map(attribute='1') | sum %}
+                                    {% if total_projects > 0 %}
+                                        {{ "%.0f"|format((completed_projects / total_projects) * 100) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted small">Success Rate</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Growth Trend -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="metric-card text-center p-3 border rounded">
+                                <i data-feather="trending-up" class="text-info mb-2"></i>
+                                <div class="h5 mb-1">
+                                    {% set recent_projects = project_stats | length %}
+                                    +{{ recent_projects }}
+                                </div>
+                                <div class="text-muted small">Projects This Period</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Analytics -->
+    <div class="row">
+        <!-- Project Details Table -->
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Project Performance Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if project_stats %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="analyticsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Projects Created</th>
+                                        <th>Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat in project_stats %}
+                                    <tr>
+                                        <td>{{ stat.date.strftime('%Y-%m-%d') if stat.date else 'N/A' }}</td>
+                                        <td>{{ stat.count or 0 }}</td>
+                                        <td>
+                                            {% if loop.index > 1 %}
+                                                {% set prev_count = project_stats[loop.index - 2].count or 0 %}
+                                                {% set current_count = stat.count or 0 %}
+                                                {% if current_count > prev_count %}
+                                                    <i data-feather="trending-up" class="text-success"></i>
+                                                {% elif current_count < prev_count %}
+                                                    <i data-feather="trending-down" class="text-danger"></i>
+                                                {% else %}
+                                                    <i data-feather="minus" class="text-muted"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <i data-feather="minus" class="text-muted"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i data-feather="bar-chart" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                            <h4 class="text-muted">No Analytics Data</h4>
+                            <p class="text-muted">Start working on projects to see detailed analytics here.</p>
+                            <a href="{{ url_for('main.project_wizard') }}" class="btn futuristic-btn-primary">
+                                <i data-feather="plus" class="me-2"></i>
+                                Create First Project
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js configuration
+Chart.defaults.color = '#ffffff';
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+// Project Timeline Chart
+const projectTimelineCtx = document.getElementById('projectTimelineChart').getContext('2d');
+const projectTimelineChart = new Chart(projectTimelineCtx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for stat in project_stats %}
+            '{{ stat.date.strftime("%m/%d") if stat.date else "N/A" }}'{{ "," if not loop.last }}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Projects Created',
+            data: [
+                {% for stat in project_stats %}
+                {{ stat.count or 0 }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            }
+        }
+    }
+});
+
+// Status Distribution Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            {% for status, count in status_distribution %}
+            '{{ status.value.replace("_", " ").title() }}'{{ "," if not loop.last }}
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for status, count in status_distribution %}
+                {{ count }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            backgroundColor: [
+                '#28a745', // Completed - Green
+                '#ffc107', // In Progress - Yellow
+                '#6c757d', // Pending - Gray
+                '#dc3545'  // Cancelled - Red
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Spending Trend Chart
+const spendingCtx = document.getElementById('spendingChart').getContext('2d');
+const spendingChart = new Chart(spendingCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for stat in payment_stats %}
+            '{{ stat.date.strftime("%m/%d") if stat.date else "N/A" }}'{{ "," if not loop.last }}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Amount Spent',
+            data: [
+                {% for stat in payment_stats %}
+                {{ stat.total or 0 }}{{ "," if not loop.last }}
+                {% endfor %}
+            ],
+            backgroundColor: 'rgba(102, 126, 234, 0.7)',
+            borderColor: '#667eea',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toFixed(2);
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            }
+        }
+    }
+});
+
+// Initialize DataTable
+$('#analyticsTable').DataTable({
+    pageLength: 10,
+    order: [[0, 'desc']],
+    columnDefs: [
+        { orderable: false, targets: [2] }
+    ]
+});
+
+// Metric card hover effects
+document.querySelectorAll('.metric-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.15)';
+        this.style.transition = 'all 0.3s ease';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '';
+    });
+});
+</script>
+
+<style>
+.metric-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.metric-card:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+canvas {
+    max-height: 400px;
+}
+</style>
+{% endblock %}

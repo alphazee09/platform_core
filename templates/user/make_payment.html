@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Make Payment - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="futuristic-card mb-4">
+                <div class="card-body text-center">
+                    <h1 class="futuristic-text-primary mb-3">
+                        <i data-feather="credit-card" class="me-2"></i>
+                        Make Payment
+                    </h1>
+                    <p class="text-muted">Secure payment processing for your project</p>
+                </div>
+            </div>
+            
+            <!-- Project Information -->
+            <div class="futuristic-card mb-4">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Project Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="fw-bold">{{ project.title }}</h6>
+                            <p class="text-muted mb-2">{{ project.description[:100] }}...</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Project Type:</small><br>
+                                    <strong>{{ project.project_type }}</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Status:</small><br>
+                                    <span class="badge bg-{{ 'success' if project.status.value == 'completed' else 'warning' if project.status.value == 'in_progress' else 'secondary' }}">
+                                        {{ project.status.value.replace('_', ' ').title() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="mb-2">
+                                <small class="text-muted">Total Budget:</small><br>
+                                <h5 class="futuristic-text-primary">
+                                    {% if project.budget %}
+                                        ${{ "%.2f"|format(project.budget) }}
+                                    {% else %}
+                                        Not Set
+                                    {% endif %}
+                                </h5>
+                            </div>
+                            <div>
+                                <small class="text-muted">Amount Paid:</small><br>
+                                <strong>${{ "%.2f"|format(project.get_total_paid()) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Form -->
+            <form method="POST" action="{{ url_for('user.process_payment') }}">
+                <input type="hidden" name="project_id" value="{{ project.id }}">
+                
+                <div class="futuristic-card mb-4">
+                    <div class="card-header">
+                        <h5 class="futuristic-text-primary mb-0">Payment Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="amount" class="form-label">
+                                    <i data-feather="dollar-sign" class="me-1"></i>
+                                    Payment Amount
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" 
+                                           class="form-control futuristic-input" 
+                                           id="amount" 
+                                           name="amount" 
+                                           step="0.01" 
+                                           min="1" 
+                                           required
+                                           placeholder="0.00">
+                                </div>
+                                {% if project.budget and project.get_remaining_amount() > 0 %}
+                                    <div class="form-text">
+                                        Remaining budget: ${{ "%.2f"|format(project.get_remaining_amount()) }}
+                                        <button type="button" class="btn btn-link btn-sm p-0 ms-2" 
+                                                onclick="document.getElementById('amount').value = {{ project.get_remaining_amount() }}">
+                                            Use Full Amount
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">
+                                    <i data-feather="credit-card" class="me-1"></i>
+                                    Payment Method
+                                </label>
+                                <select class="form-select futuristic-input" id="payment_method" name="payment_method" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="thawani">Thawani Pay (OMR)</option>
+                                    <option value="stripe">Credit Card (USD)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                <i data-feather="file-text" class="me-1"></i>
+                                Payment Description
+                            </label>
+                            <input type="text" 
+                                   class="form-control futuristic-input" 
+                                   id="description" 
+                                   name="description" 
+                                   placeholder="Enter payment description (optional)"
+                                   value="Payment for {{ project.title }}">
+                        </div>
+                        
+                        <!-- Payment Method Info -->
+                        <div id="thawani-info" class="payment-method-info" style="display: none;">
+                            <div class="alert alert-info">
+                                <i data-feather="info" class="me-2"></i>
+                                <strong>Thawani Pay:</strong> Secure payment gateway for Oman. Amount will be converted to OMR.
+                                <ul class="mt-2 mb-0">
+                                    <li>Supports credit/debit cards</li>
+                                    <li>Bank transfers</li>
+                                    <li>Mobile wallets</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div id="stripe-info" class="payment-method-info" style="display: none;">
+                            <div class="alert alert-info">
+                                <i data-feather="info" class="me-2"></i>
+                                <strong>Stripe:</strong> International payment processing. Supports major credit cards worldwide.
+                                <ul class="mt-2 mb-0">
+                                    <li>Visa, Mastercard, Amex</li>
+                                    <li>Secure 3D authentication</li>
+                                    <li>Instant processing</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security & Terms -->
+                <div class="futuristic-card mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="futuristic-text-primary mb-2">
+                                    <i data-feather="shield" class="me-2"></i>
+                                    Secure Payment
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    Your payment information is encrypted and secure. We never store your payment details.
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="security-badges">
+                                    <i data-feather="lock" class="text-success me-2"></i>
+                                    <i data-feather="shield-check" class="text-success me-2"></i>
+                                    <i data-feather="check-circle" class="text-success"></i>
+                                </div>
+                                <div class="text-muted small mt-1">SSL Encrypted</div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="agree_terms" required>
+                            <label class="form-check-label" for="agree_terms">
+                                I agree to the <a href="{{ url_for('main.terms') }}" target="_blank" class="futuristic-link">Terms of Service</a> 
+                                and understand that this payment is for the specified project services.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="text-center mb-4">
+                    <button type="submit" class="btn futuristic-btn-primary btn-lg px-5" id="submitBtn">
+                        <i data-feather="credit-card" class="me-2"></i>
+                        Process Payment
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Available Payment Methods -->
+            {% if thawani_methods %}
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Available Payment Methods</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for method in thawani_methods %}
+                        <div class="col-md-3 col-6 mb-3 text-center">
+                            <div class="payment-method-card p-3 border rounded">
+                                <i data-feather="credit-card" class="text-primary mb-2"></i>
+                                <div class="small">{{ method.name if method.name else 'Card Payment' }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethodSelect = document.getElementById('payment_method');
+    const amountInput = document.getElementById('amount');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Show/hide payment method info
+    paymentMethodSelect.addEventListener('change', function() {
+        // Hide all info divs
+        document.querySelectorAll('.payment-method-info').forEach(div => {
+            div.style.display = 'none';
+        });
+        
+        // Show selected method info
+        if (this.value) {
+            const infoDiv = document.getElementById(this.value + '-info');
+            if (infoDiv) {
+                infoDiv.style.display = 'block';
+            }
+        }
+        
+        // Update currency display
+        updateCurrencyDisplay();
+    });
+    
+    function updateCurrencyDisplay() {
+        const method = paymentMethodSelect.value;
+        const currencySymbol = document.querySelector('.input-group-text');
+        
+        if (method === 'thawani') {
+            currencySymbol.textContent = 'OMR';
+        } else {
+            currencySymbol.textContent = '$';
+        }
+    }
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value);
+        const method = paymentMethodSelect.value;
+        
+        if (!amount || amount <= 0) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Amount',
+                text: 'Please enter a valid payment amount.',
+                background: '#1a1a2e',
+                color: '#ffffff'
+            });
+            return;
+        }
+        
+        if (!method) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Method Required',
+                text: 'Please select a payment method.',
+                background: '#1a1a2e',
+                color: '#ffffff'
+            });
+            return;
+        }
+        
+        // Show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-feather="loader" class="me-2"></i>Processing...';
+        
+        // Replace feather icons
+        feather.replace();
+    });
+    
+    // Amount input formatting
+    amountInput.addEventListener('input', function() {
+        const value = parseFloat(this.value);
+        if (value && value > 0) {
+            // Add some visual feedback for valid amounts
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.remove('is-valid');
+        }
+    });
+});
+</script>
+{% endblock %}

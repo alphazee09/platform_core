@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Mazen Yahia Platform{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4">
+            <div class="card border-0 shadow">
+                <div class="card-body text-center">
+                    <div class="profile-image-container mb-3">
+                        <img src="{{ get_user_avatar_url(current_user) }}" 
+                             alt="Profile Picture" 
+                             class="rounded-circle profile-image mb-3" 
+                             width="120" height="120">
+                        <div class="profile-image-overlay">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ current_user.get_full_name() }}</h5>
+                    <p class="text-muted mb-2">{{ current_user.role.value.title() }}</p>
+                    <p class="small text-muted mb-3">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Member since {{ current_user.created_at.strftime('%B %Y') }}
+                    </p>
+                    
+                    <!-- Verification Status -->
+                    <div class="mb-3">
+                        {% if current_user.is_email_verified %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Email Verified
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Email Not Verified
+                            </span>
+                        {% endif %}
+                        
+                        {% if current_user.is_verified %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-user-check me-1"></i>Account Verified
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                <i class="fas fa-clock me-1"></i>Pending Verification
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <div class="card border-0 shadow mt-3">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('main.dashboard') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('auth.profile') }}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user me-2"></i>Profile Settings
+                    </a>
+                    <a href="{{ url_for('auth.change_password') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-lock me-2"></i>Change Password
+                    </a>
+                    <a href="{{ url_for('user.notifications') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white border-bottom">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit me-2 text-primary"></i>
+                        Profile Settings
+                    </h4>
+                    <p class="text-muted mb-0 mt-1">Update your personal information and preferences</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Profile Image Upload -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Profile Picture</label>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ get_user_avatar_url(current_user) }}" 
+                                         alt="Current Profile Picture" 
+                                         class="rounded-circle me-3" 
+                                         width="60" height="60">
+                                    <div>
+                                        {{ form.profile_image(class="form-control", accept="image/*") }}
+                                        <small class="text-muted">Supported formats: JPG, PNG, JPEG. Max size: 5MB</small>
+                                        {% if form.profile_image.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.profile_image.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Personal Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.first_name.label.text }}</label>
+                                {{ form.first_name(class="form-control") }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.last_name.label.text }}</label>
+                                {{ form.last_name(class="form-control") }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.email.label.text }}</label>
+                                {{ form.email(class="form-control") }}
+                                <small class="text-muted">Changing email will require re-verification</small>
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.phone.label.text }}</label>
+                                {{ form.phone(class="form-control") }}
+                                {% if form.phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.phone.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.company.label.text }}</label>
+                            {{ form.company(class="form-control") }}
+                            {% if form.company.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.company.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.bio.label.text }}</label>
+                            {{ form.bio(class="form-control", rows="3", placeholder="Tell us about yourself...") }}
+                            <small class="text-muted">Maximum 500 characters</small>
+                            {% if form.bio.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.bio.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.address.label.text }}</label>
+                            {{ form.address(class="form-control", rows="2", placeholder="Your address...") }}
+                            {% if form.address.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.address.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Account Information (Read-only) -->
+                        <hr class="my-4">
+                        <h5 class="fw-bold mb-3">Account Information</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Username</label>
+                                <input type="text" class="form-control" value="{{ current_user.username }}" readonly>
+                                <small class="text-muted">Username cannot be changed</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Account Type</label>
+                                <input type="text" class="form-control" value="{{ current_user.role.value.title() }}" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Member Since</label>
+                                <input type="text" class="form-control" value="{{ current_user.created_at.strftime('%B %d, %Y') }}" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Last Login</label>
+                                <input type="text" class="form-control" 
+                                       value="{{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') if current_user.last_login else 'Never' }}" 
+                                       readonly>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    Save Changes
+                                </button>
+                                <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary btn-lg ms-2">
+                                    <i class="fas fa-times me-2"></i>
+                                    Cancel
+                                </a>
+                            </div>
+                            
+                            <div>
+                                {% if not current_user.is_email_verified %}
+                                    <a href="{{ url_for('auth.resend_verification', email=current_user.email) }}" 
+                                       class="btn btn-warning">
+                                        <i class="fas fa-envelope me-2"></i>
+                                        Resend Verification Email
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Account Statistics -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-primary text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-project-diagram fa-2x mb-2"></i>
+                            <h4 class="mb-0">{{ current_user.projects|length }}</h4>
+                            <small>Total Projects</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <h4 class="mb-0">{{ current_user.projects|selectattr('status.value', 'equalto', 'completed')|list|length }}</h4>
+                            <small>Completed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-info text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-credit-card fa-2x mb-2"></i>
+                            <h4 class="mb-0">{{ current_user.payments|selectattr('status.value', 'equalto', 'completed')|list|length }}</h4>
+                            <small>Payments Made</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-warning text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-envelope fa-2x mb-2"></i>
+                            <h4 class="mb-0">{{ current_user.messages_sent|length + current_user.messages_received|length }}</h4>
+                            <small>Messages</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-image-container:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.form-control:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.btn-primary:hover {
+    background-color: #4338ca;
+    border-color: #4338ca;
+}
+</style>
+
+<script>
+// Character counter for bio
+document.getElementById('bio').addEventListener('input', function() {
+    const maxLength = 500;
+    const currentLength = this.value.length;
+    const remaining = maxLength - currentLength;
+    
+    let counter = this.parentNode.querySelector('.char-counter');
+    if (!counter) {
+        counter = document.createElement('small');
+        counter.className = 'char-counter text-muted';
+        this.parentNode.appendChild(counter);
+    }
+    
+    counter.textContent = `${remaining} characters remaining`;
+    
+    if (remaining < 50) {
+        counter.className = 'char-counter text-warning';
+    } else if (remaining < 0) {
+        counter.className = 'char-counter text-danger';
+    } else {
+        counter.className = 'char-counter text-muted';
+    }
+});
+
+// Profile image preview
+document.getElementById('profile_image').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.querySelectorAll('img[alt*="Profile"]').forEach(img => {
+                img.src = e.target.result;
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

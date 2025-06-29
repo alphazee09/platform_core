@@ -1,0 +1,580 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="futuristic-text-primary">Messages</h1>
+                <button type="button" class="btn futuristic-btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                    <i data-feather="plus" class="me-2"></i>
+                    New Message
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Message Statistics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="message-square" class="text-primary mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">{{ messages.total }}</div>
+                    <div class="text-muted">Total Messages</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="mail" class="text-warning mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {{ messages.items | selectattr('is_read', 'equalto', False) | list | length }}
+                    </div>
+                    <div class="text-muted">Unread</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="folder" class="text-info mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {{ messages.items | selectattr('message_type', 'equalto', 'project') | list | length }}
+                    </div>
+                    <div class="text-muted">Project Related</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body text-center">
+                    <i data-feather="alert-circle" class="text-danger mb-2" style="width: 32px; height: 32px;"></i>
+                    <div class="h4 mb-1">
+                        {{ messages.items | selectattr('priority', 'equalto', 'urgent') | list | length }}
+                    </div>
+                    <div class="text-muted">Urgent</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="type" class="form-label">Message Type</label>
+                            <select class="form-select futuristic-input" id="type" name="type">
+                                <option value="all" {{ 'selected' if message_type == 'all' }}>All Types</option>
+                                <option value="project" {{ 'selected' if message_type == 'project' }}>Project</option>
+                                <option value="support" {{ 'selected' if message_type == 'support' }}>Support</option>
+                                <option value="billing" {{ 'selected' if message_type == 'billing' }}>Billing</option>
+                                <option value="general" {{ 'selected' if message_type == 'general' }}>General</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="project" class="form-label">Project</label>
+                            <select class="form-select futuristic-input" id="project" name="project">
+                                <option value="">All Projects</option>
+                                {% for project in user_projects %}
+                                <option value="{{ project.id }}" {{ 'selected' if project_id == project.id }}>
+                                    {{ project.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select futuristic-input" id="priority" name="priority">
+                                <option value="all">All Priorities</option>
+                                <option value="urgent">Urgent</option>
+                                <option value="high">High</option>
+                                <option value="normal">Normal</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select futuristic-input" id="status" name="status">
+                                <option value="all">All</option>
+                                <option value="unread">Unread</option>
+                                <option value="read">Read</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i data-feather="filter"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Messages List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Message Inbox</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages.items %}
+                        <div class="message-list">
+                            {% for message in messages.items %}
+                            <div class="message-item {{ 'unread' if not message.is_read }} border-bottom py-3" 
+                                 data-message-id="{{ message.id }}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-start">
+                                            <div class="message-avatar me-3">
+                                                {% if message.sender.profile_image %}
+                                                    <img src="{{ url_for('main.uploaded_file', filename=message.sender.profile_image) }}" 
+                                                         alt="Sender" class="rounded-circle" width="40" height="40">
+                                                {% else %}
+                                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                                         style="width: 40px; height: 40px;">
+                                                        <i data-feather="user" class="text-white"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="message-content flex-grow-1">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <h6 class="mb-0 me-2 {{ 'fw-bold' if not message.is_read }}">
+                                                        {{ message.subject }}
+                                                    </h6>
+                                                    <span class="badge bg-{{ 'danger' if message.priority == 'urgent' else 'warning' if message.priority == 'high' else 'secondary' }}">
+                                                        {{ message.priority.title() }}
+                                                    </span>
+                                                    {% if message.message_type != 'general' %}
+                                                        <span class="badge bg-outline-primary ms-1">
+                                                            {{ message.message_type.title() }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="message-preview text-muted">
+                                                    {{ message.content[:150] }}{% if message.content|length > 150 %}...{% endif %}
+                                                </div>
+                                                <div class="message-meta mt-2">
+                                                    <small class="text-muted">
+                                                        <i data-feather="user" class="me-1"></i>
+                                                        From: {{ message.sender.get_full_name() }}
+                                                    </small>
+                                                    {% if message.project %}
+                                                        <small class="text-muted ms-3">
+                                                            <i data-feather="folder" class="me-1"></i>
+                                                            {{ message.project.title }}
+                                                        </small>
+                                                    {% endif %}
+                                                    {% if message.attachment_path %}
+                                                        <small class="text-info ms-3">
+                                                            <i data-feather="paperclip" class="me-1"></i>
+                                                            Attachment
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <div class="message-date">
+                                            <div class="fw-bold">{{ message.sent_at.strftime('%Y-%m-%d') }}</div>
+                                            <small class="text-muted">{{ message.sent_at.strftime('%H:%M') }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#messageModal{{ message.id }}"
+                                                    onclick="markAsRead({{ message.id }})">
+                                                <i data-feather="eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#replyModal{{ message.id }}">
+                                                <i data-feather="reply"></i>
+                                            </button>
+                                            {% if not message.is_read %}
+                                                <button type="button" class="btn btn-outline-success" 
+                                                        onclick="markAsRead({{ message.id }})">
+                                                    <i data-feather="check"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if messages.pages > 1 %}
+                        <nav aria-label="Message pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if messages.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('user.messages', page=messages.prev_num, type=message_type, project=project_id) }}">
+                                            <i data-feather="chevron-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in messages.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != messages.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('user.messages', page=page_num, type=message_type, project=project_id) }}">
+                                                    {{ page_num }}
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if messages.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('user.messages', page=messages.next_num, type=message_type, project=project_id) }}">
+                                            <i data-feather="chevron-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i data-feather="message-square" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                            <h4 class="text-muted">No Messages Found</h4>
+                            <p class="text-muted">
+                                {% if message_type != 'all' or project_id %}
+                                    Try adjusting your filters to see more messages.
+                                {% else %}
+                                    Messages from our team will appear here.
+                                {% endif %}
+                            </p>
+                            <button type="button" class="btn futuristic-btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                                <i data-feather="plus" class="me-2"></i>
+                                Send First Message
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Message Modal -->
+<div class="modal fade" id="newMessageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content futuristic-card">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-text-primary">New Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('user.send_message') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control futuristic-input" 
+                                   id="subject" name="subject" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="message_type" class="form-label">Message Type</label>
+                            <select class="form-select futuristic-input" id="message_type" name="message_type">
+                                <option value="general">General</option>
+                                <option value="project">Project Related</option>
+                                <option value="support">Support</option>
+                                <option value="billing">Billing</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="project_id" class="form-label">Related Project (Optional)</label>
+                            <select class="form-select futuristic-input" id="project_id" name="project_id">
+                                <option value="">Select Project</option>
+                                {% for project in user_projects %}
+                                <option value="{{ project.id }}">{{ project.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select futuristic-input" id="priority" name="priority">
+                                <option value="normal">Normal</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Message</label>
+                        <textarea class="form-control futuristic-input" id="content" name="content" rows="6" required></textarea>
+                        <div class="form-text">
+                            <span id="contentCount">0</span>/2000 characters
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="attachment" class="form-label">Attachment (Optional)</label>
+                        <input type="file" class="form-control futuristic-input" id="attachment" name="attachment">
+                        <div class="form-text">Maximum file size: 16MB</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn futuristic-btn-primary">
+                        <i data-feather="send" class="me-2"></i>
+                        Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Message View Modals -->
+{% for message in messages.items %}
+<div class="modal fade" id="messageModal{{ message.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content futuristic-card">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-text-primary">{{ message.subject }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="message-header mb-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>From:</strong> {{ message.sender.get_full_name() }}<br>
+                            <strong>Type:</strong> {{ message.message_type.title() }}
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <strong>Priority:</strong> 
+                            <span class="badge bg-{{ 'danger' if message.priority == 'urgent' else 'warning' if message.priority == 'high' else 'secondary' }}">
+                                {{ message.priority.title() }}
+                            </span><br>
+                            <strong>Date:</strong> {{ message.sent_at.strftime('%Y-%m-%d %H:%M') }}
+                        </div>
+                    </div>
+                    {% if message.project %}
+                    <hr>
+                    <div>
+                        <strong>Related Project:</strong> 
+                        <a href="{{ url_for('user.project_detail', id=message.project.id) }}" class="futuristic-link">
+                            {{ message.project.title }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="message-content border rounded p-3 mb-3">
+                    {{ message.content | nl2br }}
+                </div>
+                
+                {% if message.attachment_path %}
+                <div class="message-attachment">
+                    <div class="alert alert-info">
+                        <i data-feather="paperclip" class="me-2"></i>
+                        <strong>Attachment:</strong> 
+                        <a href="{{ url_for('main.uploaded_file', filename=message.attachment_path) }}" 
+                           target="_blank" class="futuristic-link">
+                            Download Attachment
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" 
+                        data-bs-dismiss="modal"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#replyModal{{ message.id }}">
+                    <i data-feather="reply" class="me-2"></i>
+                    Reply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="replyModal{{ message.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content futuristic-card">
+            <div class="modal-header">
+                <h5 class="modal-title futuristic-text-primary">Reply to: {{ message.subject }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('user.send_message') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="subject" value="Re: {{ message.subject }}">
+                    <input type="hidden" name="message_type" value="{{ message.message_type }}">
+                    <input type="hidden" name="project_id" value="{{ message.project_id if message.project }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Original Message:</label>
+                        <div class="border rounded p-2 bg-light small" style="max-height: 100px; overflow-y: auto;">
+                            {{ message.content[:200] }}{% if message.content|length > 200 %}...{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="replyContent{{ message.id }}" class="form-label">Your Reply</label>
+                        <textarea class="form-control futuristic-input" 
+                                  id="replyContent{{ message.id }}" 
+                                  name="content" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="replyAttachment{{ message.id }}" class="form-label">Attachment (Optional)</label>
+                        <input type="file" class="form-control futuristic-input" 
+                               id="replyAttachment{{ message.id }}" name="attachment">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn futuristic-btn-primary">
+                        <i data-feather="send" class="me-2"></i>
+                        Send Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Character counter for message content
+document.getElementById('content').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('contentCount').textContent = count;
+    
+    if (count > 2000) {
+        this.value = this.value.substring(0, 2000);
+        document.getElementById('contentCount').textContent = 2000;
+    }
+});
+
+// Auto-submit form on filter change
+document.querySelectorAll('#type, #project, #priority, #status').forEach(element => {
+    element.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+
+// Mark message as read
+function markAsRead(messageId) {
+    fetch(`/api/mark-message-read/${messageId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI to show as read
+            const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageItem) {
+                messageItem.classList.remove('unread');
+                messageItem.querySelector('h6').classList.remove('fw-bold');
+            }
+            
+            // Update unread count
+            updateUnreadCount();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Update unread message count
+function updateUnreadCount() {
+    fetch('/api/unread-messages')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('unread-messages-count').textContent = data.count;
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Message item hover effects
+document.querySelectorAll('.message-item').forEach(item => {
+    item.addEventListener('mouseenter', function() {
+        this.style.backgroundColor = 'rgba(102, 126, 234, 0.05)';
+        this.style.borderRadius = '8px';
+        this.style.transition = 'all 0.3s ease';
+    });
+    
+    item.addEventListener('mouseleave', function() {
+        this.style.backgroundColor = '';
+    });
+});
+
+// Auto-refresh messages every 30 seconds
+setInterval(function() {
+    updateUnreadCount();
+}, 30000);
+</script>
+
+<style>
+.message-item.unread {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-left: 4px solid #667eea;
+}
+
+.message-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.message-avatar img {
+    object-fit: cover;
+}
+
+.message-content {
+    min-height: 60px;
+}
+
+.message-preview {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.message-meta {
+    font-size: 0.8rem;
+}
+
+.message-date {
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

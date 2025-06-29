@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="futuristic-text-primary mb-2">
+                                Welcome back, {{ current_user.get_full_name() }}!
+                            </h1>
+                            <p class="text-muted mb-0">
+                                Here's an overview of your projects and activities.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{{ url_for('main.project_wizard') }}" class="btn futuristic-btn-primary">
+                                <i data-feather="plus" class="me-2"></i>
+                                New Project
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-primary">
+                                <i data-feather="folder"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Total Projects</div>
+                            <div class="h4 mb-0">{{ stats.total }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-success">
+                                <i data-feather="check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Completed</div>
+                            <div class="h4 mb-0">{{ stats.completed }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-warning">
+                                <i data-feather="clock"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">In Progress</div>
+                            <div class="h4 mb-0">{{ stats.in_progress }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="futuristic-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="stat-icon bg-info">
+                                <i data-feather="dollar-sign"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="text-muted small">Total Spent</div>
+                            <div class="h4 mb-0">${{ "%.2f"|format(total_spent) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Projects -->
+        <div class="col-lg-8 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="futuristic-text-primary mb-0">Recent Projects</h5>
+                    <a href="{{ url_for('user.projects') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Project</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                        <th>Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in recent_projects %}
+                                    <tr onclick="window.location='{{ url_for('user.project_detail', id=project.id) }}'" style="cursor: pointer;">
+                                        <td>
+                                            <div class="fw-bold">{{ project.title }}</div>
+                                            <div class="text-muted small">{{ project.project_type }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if project.status.value == 'completed' else 'warning' if project.status.value == 'in_progress' else 'secondary' }}">
+                                                {{ project.status.value.replace('_', ' ').title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar" style="width: {{ project.get_completion_percentage() }}%"></div>
+                                            </div>
+                                            <small class="text-muted">{{ project.get_completion_percentage() }}%</small>
+                                        </td>
+                                        <td class="text-muted small">
+                                            {{ project.updated_at.strftime('%Y-%m-%d') }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="folder-plus" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No Projects Yet</h6>
+                            <p class="text-muted">Start your first project to see it here.</p>
+                            <a href="{{ url_for('main.project_wizard') }}" class="btn btn-primary">
+                                <i data-feather="plus" class="me-2"></i>
+                                Create Project
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Activity Feed -->
+        <div class="col-lg-4 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        <div class="activity-feed">
+                            {% for activity in recent_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i data-feather="activity" class="text-primary"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-description">{{ activity.description }}</div>
+                                    <div class="activity-time text-muted small">
+                                        {{ activity.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="activity" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No Activity</h6>
+                            <p class="text-muted">Your activities will appear here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Upcoming Milestones -->
+        <div class="col-lg-6 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header">
+                    <h5 class="futuristic-text-primary mb-0">Upcoming Milestones</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_milestones %}
+                        {% for milestone in upcoming_milestones %}
+                        <div class="milestone-item border-start border-primary ps-3 mb-3">
+                            <div class="fw-bold">{{ milestone.title }}</div>
+                            <div class="text-muted small">{{ milestone.project.title }}</div>
+                            <div class="text-muted small">
+                                Due: {{ milestone.due_date.strftime('%Y-%m-%d') if milestone.due_date }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="target" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No Upcoming Milestones</h6>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Payments -->
+        <div class="col-lg-6 mb-4">
+            <div class="futuristic-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="futuristic-text-primary mb-0">Recent Payments</h5>
+                    <a href="{{ url_for('user.payments') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_payments %}
+                        {% for payment in recent_payments %}
+                        <div class="payment-item d-flex justify-content-between align-items-center py-2">
+                            <div>
+                                <div class="fw-bold">${{ "%.2f"|format(payment.amount) }}</div>
+                                <div class="text-muted small">{{ payment.description[:30] }}...</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ 'success' if payment.status.value == 'completed' else 'warning' if payment.status.value == 'pending' else 'danger' }}">
+                                    {{ payment.status.value.title() }}
+                                </span>
+                                <div class="text-muted small">{{ payment.created_at.strftime('%Y-%m-%d') }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="credit-card" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                            <h6 class="text-muted">No Payments</h6>
+                            <p class="text-muted">Payment history will appear here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Unread Messages -->
+    {% if unread_messages %}
+    <div class="row">
+        <div class="col-12">
+            <div class="futuristic-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="futuristic-text-primary mb-0">
+                        <i data-feather="message-square" class="me-2"></i>
+                        Unread Messages ({{ unread_messages|length }})
+                    </h5>
+                    <a href="{{ url_for('user.messages') }}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for message in unread_messages %}
+                    <div class="message-item border-start border-warning ps-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <div class="fw-bold">{{ message.subject }}</div>
+                                <div class="text-muted small">From: {{ message.sender.get_full_name() }}</div>
+                            </div>
+                            <div class="text-muted small">{{ message.sent_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                        </div>
+                        <div class="mt-2">{{ message.content[:100] }}...</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh unread message count
+setInterval(function() {
+    fetch('/api/unread-messages')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('unread-messages-count').textContent = data.count;
+        })
+        .catch(error => console.error('Error:', error));
+}, 30000); // Refresh every 30 seconds
+</script>
+{% endblock %}

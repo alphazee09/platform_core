@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Successful - Platform Core{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="futuristic-card text-center">
+                <div class="card-body py-5">
+                    <!-- Success Icon -->
+                    <div class="mb-4">
+                        <div class="success-checkmark">
+                            <div class="check-icon">
+                                <span class="icon-line line-tip"></span>
+                                <span class="icon-line line-long"></span>
+                                <div class="icon-circle"></div>
+                                <div class="icon-fix"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-success mb-3">Payment Successful!</h1>
+                    <p class="text-muted mb-4">
+                        Your payment has been processed successfully. Thank you for your business!
+                    </p>
+                    
+                    <!-- Payment Details -->
+                    <div class="payment-details bg-light rounded p-4 mb-4">
+                        <div class="row">
+                            <div class="col-6 text-start">
+                                <strong>Transaction ID:</strong><br>
+                                <span class="text-muted">#{{ payment.id }}</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Amount Paid:</strong><br>
+                                <span class="text-success h5">${{ "%.2f"|format(payment.amount) }}</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6 text-start">
+                                <strong>Payment Method:</strong><br>
+                                <span class="text-muted">{{ payment.payment_method.title() }}</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Date:</strong><br>
+                                <span class="text-muted">{{ payment.paid_at.strftime('%Y-%m-%d %H:%M') if payment.paid_at else payment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                        </div>
+                        {% if payment.project %}
+                        <hr>
+                        <div class="text-start">
+                            <strong>Project:</strong><br>
+                            <a href="{{ url_for('user.project_detail', id=payment.project.id) }}" class="futuristic-link">
+                                {{ payment.project.title }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Next Steps -->
+                    <div class="next-steps text-start mb-4">
+                        <h5 class="futuristic-text-primary mb-3">What's Next?</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i data-feather="check-circle" class="text-success me-2"></i>
+                                You'll receive a payment confirmation email shortly
+                            </li>
+                            <li class="mb-2">
+                                <i data-feather="eye" class="text-primary me-2"></i>
+                                Track your project progress in your dashboard
+                            </li>
+                            <li class="mb-2">
+                                <i data-feather="message-circle" class="text-info me-2"></i>
+                                Our team will update you on project milestones
+                            </li>
+                            <li class="mb-0">
+                                <i data-feather="file-text" class="text-warning me-2"></i>
+                                Access invoices and receipts in your payment history
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        {% if payment.project %}
+                            <a href="{{ url_for('user.project_detail', id=payment.project.id) }}" 
+                               class="btn futuristic-btn-primary">
+                                <i data-feather="folder" class="me-2"></i>
+                                View Project
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('user.payments') }}" class="btn btn-outline-primary">
+                            <i data-feather="list" class="me-2"></i>
+                            Payment History
+                        </a>
+                        <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">
+                            <i data-feather="home" class="me-2"></i>
+                            Dashboard
+                        </a>
+                    </div>
+                    
+                    <!-- Support Information -->
+                    <div class="support-info mt-4 pt-4 border-top">
+                        <h6 class="futuristic-text-primary mb-2">Need Help?</h6>
+                        <p class="text-muted small mb-2">
+                            If you have any questions about this payment or your project, feel free to contact us.
+                        </p>
+                        <a href="{{ url_for('user.messages') }}" class="btn btn-sm btn-outline-info">
+                            <i data-feather="help-circle" class="me-1"></i>
+                            Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-redirect after 30 seconds
+setTimeout(function() {
+    {% if payment.project %}
+        window.location.href = "{{ url_for('user.project_detail', id=payment.project.id) }}";
+    {% else %}
+        window.location.href = "{{ url_for('user.dashboard') }}";
+    {% endif %}
+}, 30000);
+
+// Show success animation
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        document.querySelector('.success-checkmark').classList.add('animate');
+    }, 500);
+});
+</script>
+
+<style>
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #4bb543;
+    stroke-miterlimit: 10;
+    margin: 10% auto;
+    box-shadow: inset 0px 0px 0px #4bb543;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+}
+
+.success-checkmark .check-icon {
+    width: 56px;
+    height: 56px;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: content-box;
+    border: 4px solid #4bb543;
+    background: #4bb543;
+    margin: 8px auto;
+}
+
+.success-checkmark .check-icon::before {
+    top: 3px;
+    left: -2px;
+    width: 30px;
+    transform-origin: 100% 50%;
+    border-radius: 100px 0 0 100px;
+}
+
+.success-checkmark .check-icon::after {
+    top: 0;
+    left: 30px;
+    width: 60px;
+    transform-origin: 0 50%;
+    border-radius: 0 100px 100px 0;
+    animation: rotate-circle 4.25s ease-in;
+}
+
+.success-checkmark .check-icon::before, .success-checkmark .check-icon::after {
+    content: '';
+    height: 100px;
+    position: absolute;
+    background: #FFFFFF;
+    transform: rotate(-45deg);
+}
+
+.success-checkmark .check-icon .icon-line {
+    height: 5px;
+    background-color: #FFFFFF;
+    display: block;
+    border-radius: 2px;
+    position: absolute;
+    z-index: 10;
+}
+
+.success-checkmark .check-icon .icon-line.line-tip {
+    top: 46px;
+    left: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+    animation: icon-line-tip 0.75s;
+}
+
+.success-checkmark .check-icon .icon-line.line-long {
+    top: 38px;
+    right: 8px;
+    width: 47px;
+    transform: rotate(-45deg);
+    animation: icon-line-long 0.75s;
+}
+
+.success-checkmark .check-icon .icon-circle {
+    top: -4px;
+    left: -4px;
+    z-index: 10;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: absolute;
+    box-sizing: content-box;
+    border: 4px solid rgba(75, 181, 67, .5);
+}
+
+.success-checkmark .check-icon .icon-fix {
+    top: 8px;
+    width: 5px;
+    left: 26px;
+    z-index: 1;
+    height: 85px;
+    position: absolute;
+    transform: rotate(-45deg);
+    background-color: #FFFFFF;
+}
+
+@keyframes rotate-circle {
+    0% {
+        transform: rotate(-45deg);
+    }
+    5% {
+        transform: rotate(-45deg);
+    }
+    12% {
+        transform: rotate(-405deg);
+    }
+    100% {
+        transform: rotate(-405deg);
+    }
+}
+
+@keyframes icon-line-tip {
+    0% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    54% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    70% {
+        width: 50px;
+        left: -8px;
+        top: 37px;
+    }
+    84% {
+        width: 17px;
+        left: 21px;
+        top: 48px;
+    }
+    100% {
+        width: 25px;
+        left: 14px;
+        top: 45px;
+    }
+}
+
+@keyframes icon-line-long {
+    0% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    65% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    84% {
+        width: 55px;
+        right: 0px;
+        top: 35px;
+    }
+    100% {
+        width: 47px;
+        right: 8px;
+        top: 38px;
+    }
+}
+
+@keyframes fill {
+    100% {
+        box-shadow: inset 0px 0px 0px 60px #4bb543;
+    }
+}
+
+@keyframes scale {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+</style>
+{% endblock %}
